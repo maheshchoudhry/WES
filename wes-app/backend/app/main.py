@@ -1,27 +1,32 @@
-"""WES Web Application — backend entrypoint.
+"""WES Web Application - backend entrypoint."""
+from __future__ import annotations
 
-Sprint 01 provides the application factory and a health endpoint only.
-Feature routers are registered under /api/v1 in later sprints.
-"""
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.router import api_router
 from app.core.config import settings
+from app.core.errors import register_error_handlers
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(
-        title=settings.app_name,
-        version=settings.api_version,
+    app = FastAPI(title=settings.app_name, version=settings.api_version)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
+
+    register_error_handlers(app)
 
     @app.get("/health", tags=["system"])
     def health() -> dict[str, str]:
         return {"status": "ok", "service": settings.app_name}
 
-    # Feature routers (registered in later sprints):
-    # from app.api.v1.router import api_router
-    # app.include_router(api_router, prefix="/api/v1")
-
+    app.include_router(api_router, prefix=settings.api_v1_prefix)
     return app
 
 
