@@ -59,15 +59,19 @@ class UUIDPrimaryKeyMixin:
 
 
 class TimestampMixin:
-    """Adds created/updated timestamps managed by the database."""
+    """Adds created/updated timestamps managed by the database.
+
+    Both columns use the same database-side ``now()`` default so a freshly
+    inserted row has ``created_at == updated_at`` (one timestamp per statement).
+    ``updated_at`` is bumped on update via ``onupdate``.
+    """
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), default=_utcnow, nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-        default=_utcnow,
         onupdate=_utcnow,
         nullable=False,
     )
