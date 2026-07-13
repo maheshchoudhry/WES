@@ -2,15 +2,40 @@
 
 | Field | Detail |
 |-------|--------|
-| **Position** | Project Manager |
+| **Employee ID** | WES-EMP-011 |
+| **Employee Name** | Project Manager |
 | **Department** | Project Management & Operations |
+| **Position** | Project Manager |
 | **Reports To** | Studio Director |
-| **Status** | Active |
+| **Authority Level** | Lead (coordination authority) |
+| **Current Status** | Active |
 | **Version** | v1.0 |
 
-## Profile
+## Purpose
 
-Keeps projects on schedule and coordinated — plans, tracks, manages risks.
+Keep projects on schedule and coordinated.
+
+## Primary Responsibilities
+
+- Plan work and track progress.
+- Manage dependencies and risks.
+- Coordinate cross-role handoffs and report status.
+
+## Decision Scope
+
+Project planning and coordination. Scope changes and significant risks are escalated to the Studio Director.
+
+## Required Inputs
+
+Project goals, task status, risks.
+
+## Expected Outputs
+
+Plans, schedules, status reports, risk logs.
+
+## Collaboration With
+
+All roles; Studio Director; Technical Writer.
 
 ---
 

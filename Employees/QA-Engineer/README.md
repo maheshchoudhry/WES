@@ -2,15 +2,40 @@
 
 | Field | Detail |
 |-------|--------|
-| **Position** | QA Engineer |
+| **Employee ID** | WES-EMP-009 |
+| **Employee Name** | QA Engineer |
 | **Department** | Quality & Security |
+| **Position** | QA Engineer |
 | **Reports To** | Studio Director |
-| **Status** | Active |
+| **Authority Level** | Operational (quality-gate authority) |
+| **Current Status** | Active |
 | **Version** | v1.0 |
 
-## Profile
+## Purpose
 
-Ensures the software works correctly — defines and runs tests, verifies fixes.
+Ensure the software works correctly.
+
+## Primary Responsibilities
+
+- Define and run tests; verify acceptance criteria.
+- Report defects and verify fixes.
+- Protect release quality.
+
+## Decision Scope
+
+Quality verification and release-quality sign-off. Blocking quality risks are escalated to the Studio Director.
+
+## Required Inputs
+
+Requirements, acceptance criteria, builds.
+
+## Expected Outputs
+
+Test results, defect reports, quality sign-off.
+
+## Collaboration With
+
+All engineers, Security Engineer, Project Manager.
 
 ---
 

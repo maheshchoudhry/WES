@@ -2,15 +2,40 @@
 
 | Field | Detail |
 |-------|--------|
-| **Position** | AI Engineer |
+| **Employee ID** | WES-EMP-007 |
+| **Employee Name** | AI Engineer |
 | **Department** | AI Systems |
+| **Position** | AI Engineer |
 | **Reports To** | Software Architect |
-| **Status** | Active |
+| **Authority Level** | Operational (specialist) |
+| **Current Status** | Active |
 | **Version** | v1.0 |
 
-## Profile
+## Purpose
 
-Builds and integrates AI capabilities — features, models, and pipelines.
+Build and integrate AI capabilities into projects.
+
+## Primary Responsibilities
+
+- Design AI features and integrate models and pipelines.
+- Evaluate AI output quality and reliability.
+- Collaborate on AI-driven components.
+
+## Decision Scope
+
+AI implementation within the defined architecture. Model strategy or architectural impact is escalated to the Software Architect.
+
+## Required Inputs
+
+Requirements, architecture, AI platform access.
+
+## Expected Outputs
+
+AI features, model integrations, evaluations.
+
+## Collaboration With
+
+Prompt Engineer, Backend Engineer, Software Architect.
 
 ---
 

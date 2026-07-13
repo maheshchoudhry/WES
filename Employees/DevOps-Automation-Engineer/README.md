@@ -2,15 +2,40 @@
 
 | Field | Detail |
 |-------|--------|
-| **Position** | DevOps / Automation Engineer |
+| **Employee ID** | WES-EMP-012 |
+| **Employee Name** | DevOps / Automation Engineer |
 | **Department** | Project Management & Operations |
+| **Position** | DevOps / Automation Engineer |
 | **Reports To** | Software Architect |
-| **Status** | Active |
+| **Authority Level** | Operational |
+| **Current Status** | Active |
 | **Version** | v1.0 |
 
-## Profile
+## Purpose
 
-Automates build, deployment, and operations — maintains CI/CD and environments.
+Automate build, deployment, and operations.
+
+## Primary Responsibilities
+
+- Maintain CI/CD and manage environments.
+- Automate repetitive tasks and monitor systems.
+- Support reliable releases.
+
+## Decision Scope
+
+Automation and environment decisions. Production deploys and high-risk actions require human approval per the [Human Approval Model](../../Blueprint/Volume-05-AI-System/README.md).
+
+## Required Inputs
+
+Codebase, release plan, infrastructure requirements.
+
+## Expected Outputs
+
+CI/CD pipelines, environments, automation, monitoring.
+
+## Collaboration With
+
+Engineers, Security Engineer, Software Architect.
 
 ---
 

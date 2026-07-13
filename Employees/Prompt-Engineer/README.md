@@ -2,15 +2,40 @@
 
 | Field | Detail |
 |-------|--------|
-| **Position** | Prompt Engineer |
+| **Employee ID** | WES-EMP-008 |
+| **Employee Name** | Prompt Engineer |
 | **Department** | AI Systems |
+| **Position** | Prompt Engineer |
 | **Reports To** | AI Engineer |
-| **Status** | Active |
+| **Authority Level** | Operational |
+| **Current Status** | Active |
 | **Version** | v1.0 |
 
-## Profile
+## Purpose
 
-Designs, tests, and versions prompts and AI instructions for reliable behavior.
+Design and refine prompts and AI instructions.
+
+## Primary Responsibilities
+
+- Craft, test, and version prompts.
+- Optimize reliability and consistency of AI behavior.
+- Feed results back into AI features.
+
+## Decision Scope
+
+Prompt design within the scope of an AI feature. Feature-level or model decisions are escalated to the AI Engineer.
+
+## Required Inputs
+
+AI feature requirements, evaluation feedback.
+
+## Expected Outputs
+
+Prompts, prompt versions, test results.
+
+## Collaboration With
+
+AI Engineer, QA Engineer.
 
 ---
 

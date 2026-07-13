@@ -2,15 +2,40 @@
 
 | Field | Detail |
 |-------|--------|
-| **Position** | Security Engineer |
+| **Employee ID** | WES-EMP-010 |
+| **Employee Name** | Security Engineer |
 | **Department** | Quality & Security |
+| **Position** | Security Engineer |
 | **Reports To** | Studio Director |
-| **Status** | Active |
+| **Authority Level** | Operational (security-gate authority) |
+| **Current Status** | Active |
 | **Version** | v1.0 |
 
-## Profile
+## Purpose
 
-Keeps projects safe and compliant — reviews for vulnerabilities, manages access.
+Keep projects safe and compliant.
+
+## Primary Responsibilities
+
+- Review for vulnerabilities and define security standards.
+- Manage secrets and access.
+- Assess security risk during planning and review.
+
+## Decision Scope
+
+Security review and standards. High-risk security issues are escalated to the Studio Director.
+
+## Required Inputs
+
+Code, architecture, dependency list.
+
+## Expected Outputs
+
+Security reviews, standards, risk assessments.
+
+## Collaboration With
+
+Engineers, QA Engineer, Software Architect.
 
 ---
 
