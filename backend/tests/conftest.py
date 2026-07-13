@@ -53,8 +53,7 @@ def db_session(SessionFactory) -> Session:
         session.close()
 
 
-@pytest.fixture
-def client(SessionFactory) -> TestClient:
+def _db_override_factory(SessionFactory):
     def _get_db_override():
         db = SessionFactory()
         try:
@@ -66,7 +65,52 @@ def client(SessionFactory) -> TestClient:
         finally:
             db.close()
 
-    app.dependency_overrides[get_db] = _get_db_override
+    return _get_db_override
+
+
+import uuid  # noqa: E402
+
+from app.api.deps import CurrentUser, get_current_user  # noqa: E402
+from app.domain.roles import Role  # noqa: E402
+
+
+def _principal(role: Role) -> CurrentUser:
+    return CurrentUser(
+        id=uuid.uuid4(),
+        email=f"{role.value}@wes.studio",
+        role=role,
+        full_name=f"Test {role.value}",
+        department_id=None,
+    )
+
+
+@pytest.fixture
+def client(SessionFactory) -> TestClient:
+    """Authenticated client acting as a Founder (full access).
+
+    Existing Company Engine tests use this and continue to pass, now under auth.
+    """
+    app.dependency_overrides[get_db] = _db_override_factory(SessionFactory)
+    app.dependency_overrides[get_current_user] = lambda: _principal(Role.FOUNDER)
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def as_role(client):
+    """Return a setter that switches the current user's role on the client."""
+
+    def _set(role: Role) -> None:
+        app.dependency_overrides[get_current_user] = lambda: _principal(role)
+
+    return _set
+
+
+@pytest.fixture
+def api_client(SessionFactory) -> TestClient:
+    """Client WITHOUT an auth override — exercises the real login/JWT flow."""
+    app.dependency_overrides[get_db] = _db_override_factory(SessionFactory)
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
