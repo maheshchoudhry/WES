@@ -15,11 +15,14 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.core.database import SessionLocal
 from app.domain.enums import AuthorityLevel, EmployeeStatus, EntityStatus
+from app.domain.roles import Role
 from app.models.company import Company
 from app.models.department import Department
 from app.models.employee import Employee
+from app.services.password import PasswordService
 
 COMPANY = {
     "name": "WORLD Engineering Studio",
@@ -60,14 +63,54 @@ EMPLOYEES = [
 ]
 
 
+# Role assignments so each WES OS role is represented for RBAC (Sprint 04).
+# Any code not listed defaults to the Employee role.
+ROLE_BY_CODE: dict[str, Role] = {
+    "WES-EMP-001": Role.FOUNDER,  # Studio Director — full access
+    "WES-EMP-002": Role.DIRECTOR,  # Product Manager — department access
+    "WES-EMP-011": Role.DIRECTOR,  # Project Manager — department access
+    "WES-EMP-004": Role.DEPARTMENT_HEAD,  # Software Architect — department management
+    "WES-EMP-013": Role.READ_ONLY,  # Technical Writer — read-only access
+}
+
+
 def _email_for(code: str) -> str:
     return f"{code.lower()}@wes.studio"
 
 
+def _role_for(code: str) -> Role:
+    return ROLE_BY_CODE.get(code, Role.EMPLOYEE)
+
+
+def ensure_auth_credentials(db: Session) -> None:
+    """Ensure every seeded employee has a role and a login password.
+
+    Idempotent: the role is (re)applied, and a default development password is set
+    only when none exists (so changed passwords are preserved). This also backfills
+    existing databases after the auth migration.
+    """
+    passwords = PasswordService()
+    default_hash = passwords.hash(get_settings().seed_default_password)
+    for employee in db.query(Employee).all():
+        employee.role = _role_for(employee.employee_code)
+        if not employee.password_hash:
+            employee.password_hash = default_hash
+        if employee.is_active is None:
+            employee.is_active = True
+    db.flush()
+
+
 def seed(db: Session) -> Company | None:
-    """Seed the WES organization. Returns the company, or None if already seeded."""
+    """Seed the WES organization + auth credentials.
+
+    Returns the company when freshly created, or None when it already existed.
+    Auth credentials are (re)ensured on every call so login works on fresh and
+    pre-existing databases alike.
+    """
     existing = db.query(Company).filter(Company.slug == COMPANY["slug"]).one_or_none()
     if existing is not None:
+        ensure_auth_credentials(db)
+        db.commit()
         return None
 
     company = Company(status=EntityStatus.ACTIVE, **COMPANY)
@@ -87,6 +130,9 @@ def seed(db: Session) -> Company | None:
         departments[code] = dept
     db.flush()
 
+    passwords = PasswordService()
+    default_hash = passwords.hash(get_settings().seed_default_password)
+
     employees: dict[str, Employee] = {}
     for code, full_name, dept_code, position, authority, manager_code in EMPLOYEES:
         emp = Employee(
@@ -99,6 +145,9 @@ def seed(db: Session) -> Company | None:
             position=position,
             authority=authority,
             status=EmployeeStatus.ACTIVE,
+            role=_role_for(code),
+            password_hash=default_hash,
+            is_active=True,
         )
         db.add(emp)
         db.flush()
