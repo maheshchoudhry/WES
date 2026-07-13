@@ -60,8 +60,7 @@ export interface SystemHealth {
 }
 
 export const dashboardApi = {
-  companySummary: () =>
-    http.get<DataResponse<CompanySummary | null>>("/dashboard/company-summary"),
+  companySummary: () => http.get<DataResponse<CompanySummary | null>>("/dashboard/company-summary"),
   stats: () => http.get<DataResponse<DashboardStats>>("/dashboard/stats"),
   departments: () => http.get<ListResponse<DepartmentStat>>("/dashboard/departments"),
   employees: () => http.get<ListResponse<EmployeeDirectoryItem>>("/dashboard/employees"),

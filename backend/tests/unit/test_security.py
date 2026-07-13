@@ -11,7 +11,6 @@ from app.domain.roles import Permission, Role, role_has_permission
 from app.services.password import PasswordService
 from app.services.tokens import TokenError, TokenService
 
-
 # --- Password service ---------------------------------------------------
 
 
@@ -60,8 +59,14 @@ def test_expired_token_raises():
     settings = get_settings()
     now = datetime.now(timezone.utc)
     token = jwt.encode(
-        {"sub": str(uuid.uuid4()), "type": "access", "role": "founder", "email": "e@x.co",
-         "iat": now - timedelta(hours=2), "exp": now - timedelta(hours=1)},
+        {
+            "sub": str(uuid.uuid4()),
+            "type": "access",
+            "role": "founder",
+            "email": "e@x.co",
+            "iat": now - timedelta(hours=2),
+            "exp": now - timedelta(hours=1),
+        },
         settings.jwt_secret,
         algorithm=settings.jwt_algorithm,
     )

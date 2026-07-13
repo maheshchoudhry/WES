@@ -25,8 +25,9 @@ export function useAsync<T>(loader: () => Promise<T>, deps: unknown[] = []): Asy
     setError(null);
     run()
       .then((result) => active && setData(result))
-      .catch((err: unknown) =>
-        active && setError(err instanceof ApiError ? err.message : "Something went wrong"),
+      .catch(
+        (err: unknown) =>
+          active && setError(err instanceof ApiError ? err.message : "Something went wrong"),
       )
       .finally(() => active && setLoading(false));
     return () => {

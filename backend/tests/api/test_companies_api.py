@@ -54,9 +54,7 @@ def test_get_missing_company_returns_404(client):
 
 
 def test_update_company(client, company):
-    resp = client.patch(
-        f"/api/v1/companies/{company['id']}", json={"company_type": "Studio"}
-    )
+    resp = client.patch(f"/api/v1/companies/{company['id']}", json={"company_type": "Studio"})
     assert resp.status_code == 200
     assert resp.json()["data"]["company_type"] == "Studio"
 

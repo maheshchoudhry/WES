@@ -44,7 +44,15 @@ describe("ProtectedRoute", () => {
   it("renders children when authenticated", async () => {
     tokenStore.set("access", "refresh", true);
     vi.mocked(authApi.me).mockResolvedValue({
-      data: { id: "1", employee_code: "WES-EMP-001", full_name: "F", email: "f@wes.studio", role: "founder", department_id: null, status: "active" },
+      data: {
+        id: "1",
+        employee_code: "WES-EMP-001",
+        full_name: "F",
+        email: "f@wes.studio",
+        role: "founder",
+        department_id: null,
+        status: "active",
+      },
     } as never);
 
     renderProtected();

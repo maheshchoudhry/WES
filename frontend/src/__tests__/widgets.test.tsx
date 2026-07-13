@@ -5,11 +5,7 @@ import type { EmployeeDirectoryItem } from "../api/dashboard";
 import { OrgSnapshot } from "../components/widgets/OrgSnapshot";
 import { StatCard } from "../components/widgets/StatCard";
 
-function emp(
-  id: string,
-  name: string,
-  reports_to_id: string | null,
-): EmployeeDirectoryItem {
+function emp(id: string, name: string, reports_to_id: string | null): EmployeeDirectoryItem {
   return {
     id,
     employee_code: id,

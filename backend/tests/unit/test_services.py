@@ -43,9 +43,7 @@ def test_get_missing_company_raises_not_found(db_session):
 
 def test_update_company(db_session):
     company = _company(db_session)
-    updated = CompanyService(db_session).update(
-        company.id, CompanyUpdate(company_type="Studio")
-    )
+    updated = CompanyService(db_session).update(company.id, CompanyUpdate(company_type="Studio"))
     assert updated.company_type == "Studio"
 
 

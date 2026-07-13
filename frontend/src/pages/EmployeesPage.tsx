@@ -60,11 +60,7 @@ export function EmployeesPage() {
           <h1>Employees</h1>
           <p>People registered in the company and their department assignment.</p>
         </div>
-        <button
-          className="btn btn-primary"
-          disabled={!company}
-          onClick={() => setCreating(true)}
-        >
+        <button className="btn btn-primary" disabled={!company} onClick={() => setCreating(true)}>
           Register Employee
         </button>
       </div>
@@ -93,7 +89,7 @@ export function EmployeesPage() {
                   <td>{e.employee_code}</td>
                   <td>{e.full_name}</td>
                   <td className="muted">{e.position}</td>
-                  <td>{e.department_id ? deptById.get(e.department_id)?.name ?? "—" : "—"}</td>
+                  <td>{e.department_id ? (deptById.get(e.department_id)?.name ?? "—") : "—"}</td>
                   <td style={{ textTransform: "capitalize" }}>{e.authority}</td>
                   <td>
                     <StatusBadge status={e.status} />

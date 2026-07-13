@@ -9,10 +9,7 @@ import { useAsync } from "../hooks/useAsync";
 import type { Company, Department } from "../types";
 
 async function loadData() {
-  const [companies, departments] = await Promise.all([
-    companiesApi.list(),
-    departmentsApi.list(),
-  ]);
+  const [companies, departments] = await Promise.all([companiesApi.list(), departmentsApi.list()]);
   return { company: companies.data[0] ?? null, departments: departments.data };
 }
 
@@ -44,11 +41,7 @@ export function DepartmentsPage() {
           <h1>Departments</h1>
           <p>Organizational units within the company.</p>
         </div>
-        <button
-          className="btn btn-primary"
-          disabled={!company}
-          onClick={() => setCreating(true)}
-        >
+        <button className="btn btn-primary" disabled={!company} onClick={() => setCreating(true)}>
           New Department
         </button>
       </div>

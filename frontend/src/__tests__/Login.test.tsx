@@ -33,7 +33,15 @@ describe("Login", () => {
   it("logs in and redirects to the dashboard", async () => {
     vi.mocked(authApi.login).mockResolvedValue({
       data: {
-        user: { id: "1", employee_code: "WES-EMP-001", full_name: "Studio Director", email: "f@wes.studio", role: "founder", department_id: null, status: "active" },
+        user: {
+          id: "1",
+          employee_code: "WES-EMP-001",
+          full_name: "Studio Director",
+          email: "f@wes.studio",
+          role: "founder",
+          department_id: null,
+          status: "active",
+        },
         tokens: { access_token: "a", refresh_token: "r", token_type: "bearer", expires_in: 1800 },
       },
     } as never);
@@ -55,8 +63,6 @@ describe("Login", () => {
     await userEvent.type(screen.getByLabelText(/password/i), "wrong");
     await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
-    await waitFor(() =>
-      expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument());
   });
 });

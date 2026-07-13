@@ -20,8 +20,8 @@ from app.repositories.department import DepartmentRepository
 from app.repositories.employee import EmployeeRepository
 from app.schemas.dashboard import (
     ActivityItem,
-    Counts,
     CompanySummary,
+    Counts,
     DashboardStats,
     DepartmentStat,
     EmployeeDirectoryItem,
@@ -63,11 +63,11 @@ class DashboardService:
             slug=company.slug,
             company_type=company.company_type,
             purpose=company.purpose,
-            status=str(company.status.value if hasattr(company.status, "value") else company.status),
-            department_count=self.departments.count_by_company(company.id),
-            employee_count=len(
-                [e for e in self._all_employees() if e.company_id == company.id]
+            status=str(
+                company.status.value if hasattr(company.status, "value") else company.status
             ),
+            department_count=self.departments.count_by_company(company.id),
+            employee_count=len([e for e in self._all_employees() if e.company_id == company.id]),
         )
 
     def stats(self) -> DashboardStats:
@@ -91,7 +91,9 @@ class DashboardService:
 
         return DashboardStats(
             company=self.company_summary(),
-            totals=Counts(departments=len(departments), employees=len(employees), active_projects=0),
+            totals=Counts(
+                departments=len(departments), employees=len(employees), active_projects=0
+            ),
             employees_by_status=employees_by_status,
             employees_by_authority=employees_by_authority,
             departments_by_status=departments_by_status,

@@ -14,7 +14,6 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.exceptions import DomainError
-from app.domain.roles import Role
 from app.models.employee import Employee
 from app.repositories.employee import EmployeeRepository
 from app.schemas.auth import AuthenticatedUser, TokenPair

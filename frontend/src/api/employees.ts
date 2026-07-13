@@ -1,4 +1,10 @@
-import type { AuthorityLevel, DataResponse, Employee, EmployeeStatus, ListResponse } from "../types";
+import type {
+  AuthorityLevel,
+  DataResponse,
+  Employee,
+  EmployeeStatus,
+  ListResponse,
+} from "../types";
 import { http } from "./client";
 
 export interface EmployeeInput {

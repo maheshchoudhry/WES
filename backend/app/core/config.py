@@ -7,7 +7,6 @@ import time into a cached ``Settings`` instance.
 
 from functools import lru_cache
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

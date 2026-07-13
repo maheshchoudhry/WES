@@ -31,9 +31,7 @@ class Department(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
 
     company: Mapped["Company"] = relationship(back_populates="departments")  # noqa: F821
-    employees: Mapped[list["Employee"]] = relationship(  # noqa: F821
-        back_populates="department"
-    )
+    employees: Mapped[list["Employee"]] = relationship(back_populates="department")  # noqa: F821
 
     def __repr__(self) -> str:  # pragma: no cover - debug helper
         return f"<Department {self.code} {self.name!r}>"

@@ -36,9 +36,7 @@ describe("CompanyOverview", () => {
 
     render(<CompanyOverview />);
 
-    await waitFor(() =>
-      expect(screen.getByText("WORLD Engineering Studio")).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText("WORLD Engineering Studio")).toBeInTheDocument());
     expect(screen.getByText("6")).toBeInTheDocument();
     expect(screen.getByText("13")).toBeInTheDocument();
   });

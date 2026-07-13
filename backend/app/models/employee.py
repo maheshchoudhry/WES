@@ -49,9 +49,7 @@ class Employee(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     refresh_token_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     company: Mapped["Company"] = relationship()  # noqa: F821
-    department: Mapped["Department | None"] = relationship(  # noqa: F821
-        back_populates="employees"
-    )
+    department: Mapped["Department | None"] = relationship(back_populates="employees")  # noqa: F821
     manager: Mapped["Employee | None"] = relationship(remote_side="Employee.id")
 
     def __repr__(self) -> str:  # pragma: no cover - debug helper

@@ -24,16 +24,12 @@ class DepartmentRepository(BaseRepository[Department]):
 
     def get_by_code(self, company_id: uuid.UUID, code: str) -> Department | None:
         return self.db.scalar(
-            select(Department).where(
-                Department.company_id == company_id, Department.code == code
-            )
+            select(Department).where(Department.company_id == company_id, Department.code == code)
         )
 
     def get_by_name(self, company_id: uuid.UUID, name: str) -> Department | None:
         return self.db.scalar(
-            select(Department).where(
-                Department.company_id == company_id, Department.name == name
-            )
+            select(Department).where(Department.company_id == company_id, Department.name == name)
         )
 
     def count_by_company(self, company_id: uuid.UUID) -> int:

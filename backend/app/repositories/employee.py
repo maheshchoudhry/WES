@@ -12,9 +12,7 @@ class EmployeeRepository(BaseRepository[Employee]):
     model = Employee
 
     def get_by_code(self, employee_code: str) -> Employee | None:
-        return self.db.scalar(
-            select(Employee).where(Employee.employee_code == employee_code)
-        )
+        return self.db.scalar(select(Employee).where(Employee.employee_code == employee_code))
 
     def get_by_email(self, email: str) -> Employee | None:
         return self.db.scalar(select(Employee).where(Employee.email == email))

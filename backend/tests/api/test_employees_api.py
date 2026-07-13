@@ -47,9 +47,7 @@ def test_assign_and_clear_department(client, company, department):
     assert resp.status_code == 200
     assert resp.json()["data"]["department_id"] == department["id"]
 
-    resp = client.put(
-        f"/api/v1/employees/{emp['id']}/department", json={"department_id": None}
-    )
+    resp = client.put(f"/api/v1/employees/{emp['id']}/department", json={"department_id": None})
     assert resp.status_code == 200
     assert resp.json()["data"]["department_id"] is None
 
@@ -63,9 +61,7 @@ def test_list_employees_filtered(client, company, department):
 
 def test_update_and_delete_employee(client, company):
     emp = _register(client, company).json()["data"]
-    resp = client.patch(
-        f"/api/v1/employees/{emp['id']}", json={"status": "inactive"}
-    )
+    resp = client.patch(f"/api/v1/employees/{emp['id']}", json={"status": "inactive"})
     assert resp.status_code == 200
     assert resp.json()["data"]["status"] == "inactive"
 

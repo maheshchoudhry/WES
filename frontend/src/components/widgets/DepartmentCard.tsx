@@ -12,7 +12,8 @@ export function DepartmentCard({ dept }: { dept: DepartmentStat }) {
       <h3>{dept.name}</h3>
       {dept.focus && <p className="muted dept-focus">{dept.focus}</p>}
       <div className="dept-count">
-        <strong>{dept.employee_count}</strong> {dept.employee_count === 1 ? "employee" : "employees"}
+        <strong>{dept.employee_count}</strong>{" "}
+        {dept.employee_count === 1 ? "employee" : "employees"}
       </div>
     </div>
   );

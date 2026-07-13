@@ -31,7 +31,11 @@ def test_department_write_permission(client, as_role, company, role, expected):
     as_role(role)
     resp = client.post(
         "/api/v1/departments",
-        json={"company_id": company["id"], "code": f"D-{role.value[:3]}", "name": f"X {role.value}"},
+        json={
+            "company_id": company["id"],
+            "code": f"D-{role.value[:3]}",
+            "name": f"X {role.value}",
+        },
     )
     assert resp.status_code == expected
     if expected == 403:

@@ -91,9 +91,7 @@ def require_permission(permission: Permission):
 
     def _guard(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
         if not role_has_permission(user.role, permission):
-            raise ForbiddenError(
-                f"Role '{user.role.value}' lacks permission '{permission.value}'"
-            )
+            raise ForbiddenError(f"Role '{user.role.value}' lacks permission '{permission.value}'")
         return user
 
     return _guard

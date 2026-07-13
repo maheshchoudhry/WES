@@ -69,8 +69,7 @@ async function rawRequest<T>(path: string, init: RequestInit, withAuth: boolean)
   }
 
   if (!res.ok) {
-    const err = (body as { error?: { code: string; message: string; details?: unknown[] } })
-      ?.error;
+    const err = (body as { error?: { code: string; message: string; details?: unknown[] } })?.error;
     throw new ApiError(
       res.status,
       err?.code ?? "ERROR",

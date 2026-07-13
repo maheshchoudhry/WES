@@ -53,8 +53,6 @@ describe("DepartmentsPage", () => {
 
     render(<DepartmentsPage />);
 
-    await waitFor(() =>
-      expect(screen.getByText(/no departments yet/i)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/no departments yet/i)).toBeInTheDocument());
   });
 });

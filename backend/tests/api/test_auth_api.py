@@ -61,9 +61,7 @@ def test_me_returns_current_user(api_client, seeded):
 def test_protected_endpoint_requires_auth(api_client, seeded):
     assert api_client.get("/api/v1/dashboard/stats").status_code == 401
     token = _login(api_client).json()["data"]["tokens"]["access_token"]
-    ok = api_client.get(
-        "/api/v1/dashboard/stats", headers={"Authorization": f"Bearer {token}"}
-    )
+    ok = api_client.get("/api/v1/dashboard/stats", headers={"Authorization": f"Bearer {token}"})
     assert ok.status_code == 200
 
 
@@ -87,9 +85,7 @@ def test_logout_invalidates_refresh_token(api_client, seeded):
 
 
 def test_invalid_bearer_token_returns_401(api_client, seeded):
-    resp = api_client.get(
-        "/api/v1/auth/me", headers={"Authorization": "Bearer not-a-real-token"}
-    )
+    resp = api_client.get("/api/v1/auth/me", headers={"Authorization": "Bearer not-a-real-token"})
     assert resp.status_code == 401
 
 

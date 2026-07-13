@@ -39,13 +39,9 @@ class DepartmentService:
             raise ValidationError(f"Company {payload.company_id} does not exist")
         # Business rule: code and name are unique within the company.
         if self.departments.get_by_code(payload.company_id, payload.code):
-            raise ConflictError(
-                f"Department code '{payload.code}' already exists in this company"
-            )
+            raise ConflictError(f"Department code '{payload.code}' already exists in this company")
         if self.departments.get_by_name(payload.company_id, payload.name):
-            raise ConflictError(
-                f"Department name '{payload.name}' already exists in this company"
-            )
+            raise ConflictError(f"Department name '{payload.name}' already exists in this company")
         department = Department(**payload.model_dump())
         return self.departments.add(department)
 
@@ -72,7 +68,5 @@ class DepartmentService:
         department = self.get(department_id)
         # Business rule: cannot delete a department that still has employees.
         if self.employees.count_by_department(department.id) > 0:
-            raise ConflictError(
-                "Department has assigned employees; reassign them before deleting"
-            )
+            raise ConflictError("Department has assigned employees; reassign them before deleting")
         self.departments.delete(department)
