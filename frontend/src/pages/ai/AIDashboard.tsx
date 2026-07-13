@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { aiApi, type AIDeptView, type AISummary } from "../../api/ai";
+import { workApi, type AIWorkSummary } from "../../api/work";
 import { ErrorNotice, Loading } from "../../components/States";
 import { QuickActions, SectionCard, StatCard } from "../../components/widgets";
 import { useAsync } from "../../hooks/useAsync";
@@ -12,9 +13,17 @@ const HEALTH_BADGE: Record<string, "ok" | "warn" | "muted"> = {
   empty: "muted",
 };
 
-async function load(): Promise<{ summary: AISummary; departments: AIDeptView[] }> {
-  const [summary, departments] = await Promise.all([aiApi.summary(), aiApi.departmentView()]);
-  return { summary: summary.data, departments: departments.data };
+async function load(): Promise<{
+  summary: AISummary;
+  departments: AIDeptView[];
+  work: AIWorkSummary;
+}> {
+  const [summary, departments, work] = await Promise.all([
+    aiApi.summary(),
+    aiApi.departmentView(),
+    workApi.aiSummary(),
+  ]);
+  return { summary: summary.data, departments: departments.data, work: work.data };
 }
 
 export function AIDashboard() {
@@ -23,7 +32,7 @@ export function AIDashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { summary, departments } = data;
+  const { summary, departments, work } = data;
 
   return (
     <div>
@@ -70,12 +79,31 @@ export function AIDashboard() {
         </SectionCard>
 
         <div className="dashboard-col">
+          <SectionCard title="Work">
+            <div className="grid stats">
+              <StatCard label="Assigned" value={work.assigned_work} />
+              <StatCard label="In Progress" value={work.current_tasks} />
+              <StatCard label="Completed" value={work.completed_work} accent="ok" />
+            </div>
+            {Object.keys(work.department_load).length > 0 && (
+              <ul className="activity" style={{ marginTop: 12 }}>
+                {Object.entries(work.department_load).map(([name, count]) => (
+                  <li key={name}>
+                    <span className="activity-body">
+                      <span className="activity-label">{name} load</span>
+                    </span>
+                    <strong>{count}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
           <SectionCard title="Explore">
             <QuickActions
               actions={[
                 { label: "Directory", to: "/ai/directory" },
                 { label: "Org Chart", to: "/ai/org" },
-                { label: "Departments", to: "/ai/departments" },
+                { label: "Projects", to: "/projects" },
               ]}
             />
           </SectionCard>

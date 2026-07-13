@@ -16,6 +16,10 @@ import { EmployeesPage } from "./pages/EmployeesPage";
 import { Forbidden } from "./pages/Forbidden";
 import { Login } from "./pages/Login";
 import { Unauthorized } from "./pages/Unauthorized";
+import { KanbanBoard } from "./pages/work/KanbanBoard";
+import { ProjectDetail } from "./pages/work/ProjectDetail";
+import { ProjectsPage } from "./pages/work/ProjectsPage";
+import { TaskDetail } from "./pages/work/TaskDetail";
 
 function ProtectedLayout() {
   return (
@@ -48,6 +52,10 @@ export default function App() {
         <Route path="/ai/org" element={<AIOrgChart />} />
         <Route path="/ai/departments" element={<AIDepartmentView />} />
         <Route path="/ai/employees/:id" element={<AIProfile />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/board" element={<KanbanBoard />} />
+        <Route path="/tasks/:id" element={<TaskDetail />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>

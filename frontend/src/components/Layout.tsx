@@ -18,8 +18,14 @@ const aiNav = [
   { to: "/ai/org", label: "AI Org Chart", end: false },
 ];
 
+// Work Management (Sprint 07).
+const workNav = [
+  { to: "/projects", label: "Projects", end: false },
+  { to: "/board", label: "Task Board", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
-const reserved = ["Projects", "Tasks", "Knowledge", "Reports", "Settings"];
+const reserved = ["Knowledge", "Reports", "Settings"];
 
 const ROLE_LABEL: Record<string, string> = {
   founder: "Founder",
@@ -46,6 +52,14 @@ export function Layout({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </nav>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">Work</div>
+          {workNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
         <div className="nav-reserved">
           <div className="nav-reserved-label">AI Company</div>
           {aiNav.map((l) => (

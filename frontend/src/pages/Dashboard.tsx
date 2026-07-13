@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import { aiApi, type AISummary } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
+import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
   ActivityItem,
   DashboardStats,
@@ -29,16 +30,18 @@ interface DashboardData {
   activity: ActivityItem[];
   health: SystemHealth;
   ai: AISummary;
+  work: FounderWorkSummary;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
-  const [stats, departments, employees, activity, health, ai] = await Promise.all([
+  const [stats, departments, employees, activity, health, ai, work] = await Promise.all([
     dashboardApi.stats(),
     dashboardApi.departments(),
     dashboardApi.employees(),
     dashboardApi.activity(8),
     dashboardApi.health(),
     aiApi.summary(),
+    workApi.founderSummary(),
   ]);
   return {
     stats: stats.data,
@@ -47,6 +50,7 @@ async function loadDashboard(): Promise<DashboardData> {
     activity: activity.data,
     health: health.data,
     ai: ai.data,
+    work: work.data,
   };
 }
 
@@ -57,7 +61,7 @@ export function Dashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { stats, departments, employees, activity, health, ai } = data;
+  const { stats, departments, employees, activity, health, ai, work } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
     ai.organization_health === "healthy"
@@ -118,6 +122,29 @@ export function Dashboard() {
                   }
                   accent={aiHealthAccent}
                 />
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* Work summary */}
+          <div className="span-all">
+            <SectionCard
+              title="Work Management"
+              action={
+                <Link to="/projects" className="btn btn-sm">
+                  Projects
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="Projects" value={work.total_projects} />
+                <StatCard label="Tasks" value={work.total_tasks} />
+                <StatCard
+                  label="Blocked"
+                  value={work.blocked_tasks}
+                  accent={work.blocked_tasks > 0 ? "warn" : "ok"}
+                />
+                <StatCard label="Velocity" value={work.velocity} hint="completed sprints" />
               </div>
             </SectionCard>
           </div>
