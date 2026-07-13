@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 
 import { useSession } from "../auth/SessionContext";
 
-// Active navigation (Sprint 03 scope).
+// Active navigation.
 const primary = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/company", label: "Company", end: false },
@@ -11,8 +11,15 @@ const primary = [
   { to: "/employees", label: "Employees", end: false },
 ];
 
+// AI Company (Sprint 06).
+const aiNav = [
+  { to: "/ai", label: "AI Company", end: true },
+  { to: "/ai/directory", label: "AI Directory", end: false },
+  { to: "/ai/org", label: "AI Org Chart", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
-const reserved = ["Projects", "Tasks", "Knowledge", "Reports", "AI Hub", "Settings"];
+const reserved = ["Projects", "Tasks", "Knowledge", "Reports", "Settings"];
 
 const ROLE_LABEL: Record<string, string> = {
   founder: "Founder",
@@ -39,6 +46,14 @@ export function Layout({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </nav>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">AI Company</div>
+          {aiNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
         <div className="nav-reserved">
           <div className="nav-reserved-label">Coming soon</div>
           {reserved.map((label) => (

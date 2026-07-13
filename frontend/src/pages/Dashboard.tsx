@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+
+import { aiApi, type AISummary } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
 import type {
   ActivityItem,
@@ -25,15 +28,17 @@ interface DashboardData {
   employees: EmployeeDirectoryItem[];
   activity: ActivityItem[];
   health: SystemHealth;
+  ai: AISummary;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
-  const [stats, departments, employees, activity, health] = await Promise.all([
+  const [stats, departments, employees, activity, health, ai] = await Promise.all([
     dashboardApi.stats(),
     dashboardApi.departments(),
     dashboardApi.employees(),
     dashboardApi.activity(8),
     dashboardApi.health(),
+    aiApi.summary(),
   ]);
   return {
     stats: stats.data,
@@ -41,6 +46,7 @@ async function loadDashboard(): Promise<DashboardData> {
     employees: employees.data,
     activity: activity.data,
     health: health.data,
+    ai: ai.data,
   };
 }
 
@@ -51,8 +57,14 @@ export function Dashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { stats, departments, employees, activity, health } = data;
+  const { stats, departments, employees, activity, health, ai } = data;
   const company = stats.company;
+  const aiHealthAccent: "ok" | "warn" | "muted" =
+    ai.organization_health === "healthy"
+      ? "ok"
+      : ai.organization_health === "empty"
+        ? "muted"
+        : "warn";
 
   return (
     <div>
@@ -83,6 +95,31 @@ export function Dashboard() {
               value={stats.employees_by_status.active ?? 0}
               accent="ok"
             />
+          </div>
+
+          {/* AI Organization summary */}
+          <div className="span-all">
+            <SectionCard
+              title="AI Organization"
+              action={
+                <Link to="/ai" className="btn btn-sm">
+                  Open AI Company
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="AI Employees" value={ai.total_employees} />
+                <StatCard label="AI Departments" value={ai.department_count} />
+                <StatCard label="AI Roles" value={ai.role_count} />
+                <StatCard
+                  label="Organization Health"
+                  value={
+                    <span style={{ textTransform: "capitalize" }}>{ai.organization_health}</span>
+                  }
+                  accent={aiHealthAccent}
+                />
+              </div>
+            </SectionCard>
           </div>
 
           {/* Left column */}

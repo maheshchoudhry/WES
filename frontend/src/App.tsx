@@ -4,6 +4,11 @@ import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
 import { authEvents } from "./auth/authEvents";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { Layout } from "./components/Layout";
+import { AIDashboard } from "./pages/ai/AIDashboard";
+import { AIDepartmentView } from "./pages/ai/AIDepartmentView";
+import { AIDirectory } from "./pages/ai/AIDirectory";
+import { AIOrgChart } from "./pages/ai/AIOrgChart";
+import { AIProfile } from "./pages/ai/AIProfile";
 import { CompanyOverview } from "./pages/CompanyOverview";
 import { Dashboard } from "./pages/Dashboard";
 import { DepartmentsPage } from "./pages/DepartmentsPage";
@@ -38,6 +43,11 @@ export default function App() {
         <Route path="/company" element={<CompanyOverview />} />
         <Route path="/departments" element={<DepartmentsPage />} />
         <Route path="/employees" element={<EmployeesPage />} />
+        <Route path="/ai" element={<AIDashboard />} />
+        <Route path="/ai/directory" element={<AIDirectory />} />
+        <Route path="/ai/org" element={<AIOrgChart />} />
+        <Route path="/ai/departments" element={<AIDepartmentView />} />
+        <Route path="/ai/employees/:id" element={<AIProfile />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>
