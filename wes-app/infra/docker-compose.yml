@@ -1,0 +1,38 @@
+# WES Web Application — local development environment.
+# Brings up PostgreSQL, the backend API, and the frontend.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: wes
+      POSTGRES_PASSWORD: wes
+      POSTGRES_DB: wes
+    ports:
+      - "5432:5432"
+    volumes:
+      - wes_db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://wes:wes@db:5432/wes
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  wes_db_data:

@@ -12,7 +12,7 @@ WES exists to engineer software with clarity, discipline, and long-term vision. 
 
 ## Current Stage
 
-The [Blueprint](./Blueprint) (v1.0) is complete and is the official operating reference. WES is now activated as an operational company structure, with departments, employees, and its first project initialized.
+The [Blueprint](./Blueprint) (v1.0) and company foundation are complete and serve as the official operating reference. WES is now building the **[WES Web Application](./wes-app/README.md)** — the operating system of the AI company. The application architecture is frozen (Sprint 01); feature implementation follows the [development roadmap](./wes-app/docs/06-Development-Roadmap.md).
 
 ## Projects
 
@@ -31,10 +31,11 @@ WES/
 ├─ .gitignore           Ignored files
 ├─ docs/                Company documentation
 ├─ Blueprint/           Operating framework (Vol. 01–10) — official reference
-├─ Company/             Company profile, org chart, directories, policies
+├─ Company/             Company profile, systems (EOS, Communication, Memory)
 ├─ Departments/         One directory per department
 ├─ Employees/           One directory per core AI employee
-├─ Projects/            Project management (Project-001: WORLD)
+├─ Projects/            Project management + Project Operating System
+├─ wes-app/             WES Web Application (frontend, backend, infra, docs)
 ├─ Standards/           Engineering standards (placeholders)
 ├─ Templates/           Reusable templates (placeholders)
 ├─ KnowledgeBase/       Knowledge management structure
@@ -50,6 +51,10 @@ The Blueprint is the source of truth for how WES operates, organized into ten vo
 ## Company
 
 The operational company structure is documented under [Company/](./Company/README.md), with departments in [Departments/](./Departments/README.md) and roles in [Employees/](./Employees/README.md).
+
+## Web Application
+
+The [WES Web Application](./wes-app/README.md) is the software product that operationalizes the company. Its architecture and roadmap live in [wes-app/docs](./wes-app/docs/README.md).
 
 ## License
 
