@@ -9,7 +9,7 @@
 | **Reports To** | Founder / Owner (Human) |
 | **Authority Level** | Executive |
 | **Current Status** | Active |
-| **Version** | v1.0 |
+| **Version** | v1.1 |
 
 ## Purpose
 
@@ -38,8 +38,27 @@ Priorities, approvals, resource allocation, status updates to the Founder.
 
 All department leads; Founder / Owner.
 
+## Operational Status (EOS)
+
+| Field | Detail |
+|-------|--------|
+| **Employee Status** | Active |
+| **Current Assignment** | Unassigned (standing studio oversight) |
+| **Department Assignment** | Leadership |
+| **Availability Status** | Available |
+| **Work Capacity** | Oversight (multi-project) |
+| **Reporting Frequency** | Continuous to Founder / per milestone |
+| **Approval Authority** | All operational decisions; major approvals |
+| **Operational State** | Available |
+| **Current Version** | v1.1 |
+
+**Skill Categories:** Leadership, Operations, Coordination
+**Primary Expertise:** Studio operations and delivery oversight
+**Secondary Expertise:** Prioritization, stakeholder reporting
+**Collaboration Partners:** All department leads; Founder / Owner
+
 ---
 
 _Placeholder for future expansion: SOPs and operating prompts._
 
-**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md)
+**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md) · **Framework:** [Employee Operating System](../../Company/Employee-Operating-System/README.md)

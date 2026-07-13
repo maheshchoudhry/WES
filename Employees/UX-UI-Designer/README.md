@@ -9,7 +9,7 @@
 | **Reports To** | Product Manager |
 | **Authority Level** | Operational |
 | **Current Status** | Active |
-| **Version** | v1.0 |
+| **Version** | v1.1 |
 
 ## Purpose
 
@@ -37,8 +37,27 @@ Flows, wireframes, UI designs, design specifications.
 
 Product Manager, Frontend Engineer.
 
+## Operational Status (EOS)
+
+| Field | Detail |
+|-------|--------|
+| **Employee Status** | Active |
+| **Current Assignment** | Unassigned |
+| **Department Assignment** | Product & Design |
+| **Availability Status** | Available |
+| **Work Capacity** | Standard (1–2 concurrent design tasks) |
+| **Reporting Frequency** | Per design task / milestone |
+| **Approval Authority** | Design decisions within requirements |
+| **Operational State** | Available |
+| **Current Version** | v1.1 |
+
+**Skill Categories:** Design, UX, UI
+**Primary Expertise:** Interface and interaction design
+**Secondary Expertise:** Usability, design systems
+**Collaboration Partners:** Product Manager, Frontend Engineer
+
 ---
 
 _Placeholder for future expansion: SOPs and operating prompts._
 
-**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md)
+**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md) · **Framework:** [Employee Operating System](../../Company/Employee-Operating-System/README.md)
