@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (lint, migrate, test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wes-app/backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: wes
+          POSTGRES_PASSWORD: wes
+          POSTGRES_DB: wes
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wes"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+psycopg://wes:wes@localhost:5432/wes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -e '.[dev]'
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Apply migrations (PostgreSQL)
+        run: alembic upgrade head
+      - name: Validate DB persistence (PostgreSQL)
+        run: python scripts/validate_db.py
+      - name: Run tests (pytest)
+        run: pytest -q
+
+  frontend:
+    name: Frontend (lint, test, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wes-app/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm run test:run
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1
