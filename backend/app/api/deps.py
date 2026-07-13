@@ -107,3 +107,22 @@ def require_permission(permission: Permission):
         return user
 
     return _guard
+
+
+# --- Work Management service providers (need CurrentUser above) ------------
+
+
+def get_work_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.work import WorkService
+
+    role = user.role.value if hasattr(user.role, "value") else user.role
+    return WorkService(db, actor=f"{user.full_name} ({role})")
+
+
+def get_work_analytics_service(db: Session = Depends(get_db)):
+    from app.services.work_analytics import WorkAnalyticsService
+
+    return WorkAnalyticsService(db)
