@@ -1,0 +1,137 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { dashboardApi } from "../api/dashboard";
+import { Dashboard } from "../pages/Dashboard";
+
+vi.mock("../api/dashboard");
+
+const company = {
+  id: "c1",
+  name: "WORLD Engineering Studio",
+  slug: "wes",
+  company_type: "AI Company",
+  purpose: null,
+  status: "active",
+  department_count: 6,
+  employee_count: 13,
+};
+
+function renderDashboard() {
+  return render(
+    <MemoryRouter>
+      <Dashboard />
+    </MemoryRouter>,
+  );
+}
+
+beforeEach(() => {
+  vi.mocked(dashboardApi.departments).mockResolvedValue({
+    data: [
+      {
+        id: "d1",
+        code: "DEPT-02",
+        name: "Engineering",
+        focus: "Build",
+        status: "active",
+        employee_count: 2,
+      },
+    ],
+    meta: { total: 1 },
+  } as never);
+  vi.mocked(dashboardApi.employees).mockResolvedValue({
+    data: [
+      {
+        id: "e1",
+        employee_code: "WES-EMP-004",
+        full_name: "Software Architect",
+        position: "Software Architect",
+        authority: "lead",
+        status: "active",
+        department_id: "d1",
+        department_name: "Engineering",
+        reports_to_id: null,
+        manager_name: null,
+      },
+      {
+        id: "e2",
+        employee_code: "WES-EMP-006",
+        full_name: "Backend Engineer",
+        position: "Backend Engineer",
+        authority: "operational",
+        status: "active",
+        department_id: "d1",
+        department_name: "Engineering",
+        reports_to_id: "e1",
+        manager_name: "Software Architect",
+      },
+    ],
+    meta: { total: 2 },
+  } as never);
+  vi.mocked(dashboardApi.activity).mockResolvedValue({
+    data: [
+      {
+        entity_type: "employee",
+        action: "created",
+        entity_id: "e2",
+        label: "WES-EMP-006 — Backend Engineer",
+        timestamp: new Date().toISOString(),
+      },
+    ],
+    meta: { total: 1 },
+  } as never);
+  vi.mocked(dashboardApi.health).mockResolvedValue({
+    data: {
+      api: "ok",
+      database: "connected",
+      version: "0.2.0",
+      companies: 1,
+      departments: 6,
+      employees: 13,
+    },
+  } as never);
+});
+
+describe("Dashboard", () => {
+  it("renders live company stats and sections", async () => {
+    vi.mocked(dashboardApi.stats).mockResolvedValue({
+      data: {
+        company,
+        totals: { departments: 6, employees: 13, active_projects: 0 },
+        employees_by_status: { active: 13 },
+        employees_by_authority: { lead: 3, operational: 9, executive: 1 },
+        departments_by_status: { active: 6 },
+      },
+    } as never);
+
+    renderDashboard();
+
+    await waitFor(() => expect(screen.getByText("Founder Dashboard")).toBeInTheDocument());
+    // Stat values from live data.
+    expect(screen.getByText("6")).toBeInTheDocument();
+    expect(screen.getAllByText("13").length).toBeGreaterThan(0);
+    // Sections and widgets.
+    expect(screen.getByText("Department Overview")).toBeInTheDocument();
+    expect(screen.getByText("Organization Snapshot")).toBeInTheDocument();
+    expect(screen.getByText("Recent Activity")).toBeInTheDocument();
+    // Employee directory shows manager relationship.
+    expect(screen.getAllByText("Software Architect").length).toBeGreaterThan(0);
+  });
+
+  it("shows an empty state when no company exists", async () => {
+    vi.mocked(dashboardApi.stats).mockResolvedValue({
+      data: {
+        company: null,
+        totals: { departments: 0, employees: 0, active_projects: 0 },
+        employees_by_status: {},
+        employees_by_authority: {},
+        departments_by_status: {},
+      },
+    } as never);
+
+    renderDashboard();
+
+    await waitFor(() => expect(screen.getByText(/no company exists yet/i)).toBeInTheDocument());
+  });
+});
