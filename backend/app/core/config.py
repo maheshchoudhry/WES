@@ -30,7 +30,11 @@ class Settings(BaseSettings):
     # PostgreSQL via WES_DATABASE_URL (see .env.example / docker-compose).
     database_url: str = "sqlite:///./wes_os.db"
 
-    cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    cors_origins: str = (
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "http://localhost:4173,http://127.0.0.1:4173"
+    )
 
     @property
     def cors_origin_list(self) -> list[str]:

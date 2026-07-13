@@ -6,7 +6,17 @@ function mockFetch(status: number, body: unknown) {
   return vi.fn().mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
+    headers: { get: () => "application/json" },
     text: async () => (body === undefined ? "" : JSON.stringify(body)),
+  });
+}
+
+function mockTextResponse(status: number, text: string, contentType: string) {
+  return vi.fn().mockResolvedValue({
+    ok: status >= 200 && status < 300,
+    status,
+    headers: { get: () => contentType },
+    text: async () => text,
   });
 }
 
@@ -44,5 +54,21 @@ describe("http client", () => {
     const e = new ApiError(404, "NOT_FOUND", "missing");
     expect(e).toBeInstanceOf(Error);
     expect(e.code).toBe("NOT_FOUND");
+  });
+
+  it("throws INVALID_RESPONSE when the body is HTML (misrouted /api)", async () => {
+    vi.stubGlobal("fetch", mockTextResponse(200, "<!doctype html><html></html>", "text/html"));
+    await expect(http.get("/dashboard/stats")).rejects.toMatchObject({
+      name: "ApiError",
+      code: "INVALID_RESPONSE",
+    });
+  });
+
+  it("throws NETWORK_ERROR when fetch rejects (backend unreachable)", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+    await expect(http.get("/dashboard/stats")).rejects.toMatchObject({
+      name: "ApiError",
+      code: "NETWORK_ERROR",
+    });
   });
 });

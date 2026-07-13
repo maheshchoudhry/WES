@@ -21,19 +21,47 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${API_PREFIX}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...init,
-  });
+  const url = `${BASE_URL}${API_PREFIX}${path}`;
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      ...init,
+    });
+  } catch {
+    // fetch() itself rejected: the API is unreachable (wrong URL, backend down,
+    // CORS blocked). Surface an actionable message instead of a bare TypeError.
+    throw new ApiError(
+      0,
+      "NETWORK_ERROR",
+      `Could not reach the API at ${url}. Is the backend running and the API URL / proxy configured?`,
+    );
+  }
 
   if (res.status === 204) {
     return undefined as T;
   }
 
-  let body: unknown = null;
   const text = await res.text();
+
+  // Parse the body as JSON. A non-JSON body (commonly an HTML index.html served
+  // by a static host when /api is not proxied to the backend) is a configuration
+  // problem, not a valid API response — report it clearly.
+  let body: unknown = null;
   if (text) {
-    body = JSON.parse(text);
+    try {
+      body = JSON.parse(text);
+    } catch {
+      const contentType = res.headers.get("content-type") ?? "unknown";
+      throw new ApiError(
+        res.status,
+        "INVALID_RESPONSE",
+        `Expected JSON from the API but received "${contentType}". ` +
+          "The request likely did not reach the backend — check VITE_API_BASE_URL " +
+          "or the dev/nginx proxy for /api.",
+      );
+    }
   }
 
   if (!res.ok) {
