@@ -117,6 +117,19 @@ def api_client(SessionFactory) -> TestClient:
 
 
 @pytest.fixture
+def ai_seeded(SessionFactory):
+    """Seed the AI organization (3 depts, 12 roles, 12 employees) into the test DB."""
+    from app.db.seed_ai import seed_ai
+
+    db = SessionFactory()
+    try:
+        seed_ai(db)
+        db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
 def company(client) -> dict:
     """A persisted company, returned as its API representation."""
     resp = client.post(
