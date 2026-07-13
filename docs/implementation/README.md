@@ -11,12 +11,14 @@ framework) — it documents the software as built.
 | Sprint 02 | [Core Company Engine](./company-engine.md) — Company, Departments, Employees | Implemented |
 | Sprint 03 | [Founder Workspace & Executive Dashboard](./dashboard.md) | Implemented |
 | Sprint 04 | [Authentication & RBAC](./auth.md) | Implemented |
+| Sprint 06 | [AI Company Core](./ai-company.md) | Implemented |
 
 ## Contents
 
 - [Company Engine](./company-engine.md) — architecture, domain model, business rules
 - [Founder Dashboard](./dashboard.md) — dashboard aggregation, widgets, screenshots
 - [Authentication & RBAC](./auth.md) — JWT auth, roles/permissions, login flow
+- [AI Company Core](./ai-company.md) — AI organization: employees, roles, org chart
 - [API Reference](./api.md) — every REST endpoint, request/response shapes, error codes
 - [Setup Guide](./setup.md) — run locally and with Docker
 
