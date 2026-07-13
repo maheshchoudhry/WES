@@ -1,0 +1,17 @@
+[project]
+name = "wes-company-engine"
+version = "0.2.0"
+description = "WES OS — Core Company Engine (Company, Departments, Employees)"
+requires-python = ">=3.11"
+
+[tool.black]
+line-length = 100
+target-version = ["py311", "py312", "py313"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["app"]
