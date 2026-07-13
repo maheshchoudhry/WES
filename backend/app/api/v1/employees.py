@@ -4,7 +4,8 @@ import uuid
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import Pagination, get_employee_service, pagination
+from app.api.deps import Pagination, get_employee_service, pagination, require_permission
+from app.domain.roles import Permission
 from app.schemas.employee import (
     EmployeeAssignDepartment,
     EmployeeCreate,
@@ -15,8 +16,11 @@ from app.services.employee import EmployeeService
 
 router = APIRouter(prefix="/employees", tags=["employees"])
 
+_read = Depends(require_permission(Permission.EMPLOYEE_READ))
+_write = Depends(require_permission(Permission.EMPLOYEE_WRITE))
 
-@router.get("")
+
+@router.get("", dependencies=[_read])
 def list_employees(
     company_id: uuid.UUID | None = Query(default=None),
     department_id: uuid.UUID | None = Query(default=None),
@@ -35,7 +39,7 @@ def list_employees(
     }
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, dependencies=[_write])
 def register_employee(
     payload: EmployeeCreate,
     service: EmployeeService = Depends(get_employee_service),
@@ -45,7 +49,7 @@ def register_employee(
     return {"data": EmployeeRead.model_validate(employee)}
 
 
-@router.get("/{employee_id}")
+@router.get("/{employee_id}", dependencies=[_read])
 def get_employee(
     employee_id: uuid.UUID,
     service: EmployeeService = Depends(get_employee_service),
@@ -53,7 +57,7 @@ def get_employee(
     return {"data": EmployeeRead.model_validate(service.get(employee_id))}
 
 
-@router.patch("/{employee_id}")
+@router.patch("/{employee_id}", dependencies=[_write])
 def update_employee(
     employee_id: uuid.UUID,
     payload: EmployeeUpdate,
@@ -63,7 +67,7 @@ def update_employee(
     return {"data": EmployeeRead.model_validate(employee)}
 
 
-@router.put("/{employee_id}/department")
+@router.put("/{employee_id}/department", dependencies=[_write])
 def assign_department(
     employee_id: uuid.UUID,
     payload: EmployeeAssignDepartment,
@@ -74,7 +78,7 @@ def assign_department(
     return {"data": EmployeeRead.model_validate(employee)}
 
 
-@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[_write])
 def delete_employee(
     employee_id: uuid.UUID,
     service: EmployeeService = Depends(get_employee_service),

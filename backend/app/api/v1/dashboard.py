@@ -3,10 +3,18 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.api.deps import require_permission
 from app.core.database import get_db
+from app.domain.roles import Permission
 from app.services.dashboard import DashboardService
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+# Every dashboard endpoint is read-only and requires the dashboard:read permission
+# (granted to all authenticated roles).
+router = APIRouter(
+    prefix="/dashboard",
+    tags=["dashboard"],
+    dependencies=[Depends(require_permission(Permission.DASHBOARD_READ))],
+)
 
 
 def get_dashboard_service(db: Session = Depends(get_db)) -> DashboardService:

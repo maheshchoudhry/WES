@@ -4,14 +4,18 @@ import uuid
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.deps import Pagination, get_company_service, pagination
+from app.api.deps import Pagination, get_company_service, pagination, require_permission
+from app.domain.roles import Permission
 from app.schemas.company import CompanyCreate, CompanyRead, CompanyUpdate
 from app.services.company import CompanyService
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
+_read = Depends(require_permission(Permission.COMPANY_READ))
+_write = Depends(require_permission(Permission.COMPANY_WRITE))
 
-@router.get("")
+
+@router.get("", dependencies=[_read])
 def list_companies(
     page: Pagination = Depends(pagination),
     service: CompanyService = Depends(get_company_service),
@@ -23,7 +27,7 @@ def list_companies(
     }
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, dependencies=[_write])
 def create_company(
     payload: CompanyCreate,
     service: CompanyService = Depends(get_company_service),
@@ -32,7 +36,7 @@ def create_company(
     return {"data": CompanyRead.model_validate(company)}
 
 
-@router.get("/{company_id}")
+@router.get("/{company_id}", dependencies=[_read])
 def get_company(
     company_id: uuid.UUID,
     service: CompanyService = Depends(get_company_service),
@@ -40,7 +44,7 @@ def get_company(
     return {"data": CompanyRead.model_validate(service.get(company_id))}
 
 
-@router.patch("/{company_id}")
+@router.patch("/{company_id}", dependencies=[_write])
 def update_company(
     company_id: uuid.UUID,
     payload: CompanyUpdate,
@@ -50,7 +54,7 @@ def update_company(
     return {"data": CompanyRead.model_validate(company)}
 
 
-@router.delete("/{company_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{company_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[_write])
 def delete_company(
     company_id: uuid.UUID,
     service: CompanyService = Depends(get_company_service),

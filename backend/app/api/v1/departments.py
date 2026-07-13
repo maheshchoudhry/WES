@@ -4,14 +4,18 @@ import uuid
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import Pagination, get_department_service, pagination
+from app.api.deps import Pagination, get_department_service, pagination, require_permission
+from app.domain.roles import Permission
 from app.schemas.department import DepartmentCreate, DepartmentRead, DepartmentUpdate
 from app.services.department import DepartmentService
 
 router = APIRouter(prefix="/departments", tags=["departments"])
 
+_read = Depends(require_permission(Permission.DEPARTMENT_READ))
+_write = Depends(require_permission(Permission.DEPARTMENT_WRITE))
 
-@router.get("")
+
+@router.get("", dependencies=[_read])
 def list_departments(
     company_id: uuid.UUID | None = Query(default=None),
     page: Pagination = Depends(pagination),
@@ -24,7 +28,7 @@ def list_departments(
     }
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, dependencies=[_write])
 def create_department(
     payload: DepartmentCreate,
     service: DepartmentService = Depends(get_department_service),
@@ -33,7 +37,7 @@ def create_department(
     return {"data": DepartmentRead.model_validate(department)}
 
 
-@router.get("/{department_id}")
+@router.get("/{department_id}", dependencies=[_read])
 def get_department(
     department_id: uuid.UUID,
     service: DepartmentService = Depends(get_department_service),
@@ -41,7 +45,7 @@ def get_department(
     return {"data": DepartmentRead.model_validate(service.get(department_id))}
 
 
-@router.patch("/{department_id}")
+@router.patch("/{department_id}", dependencies=[_write])
 def update_department(
     department_id: uuid.UUID,
     payload: DepartmentUpdate,
@@ -51,7 +55,7 @@ def update_department(
     return {"data": DepartmentRead.model_validate(department)}
 
 
-@router.delete("/{department_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{department_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[_write])
 def delete_department(
     department_id: uuid.UUID,
     service: DepartmentService = Depends(get_department_service),
