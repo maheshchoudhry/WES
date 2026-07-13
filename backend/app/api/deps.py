@@ -40,6 +40,18 @@ def get_employee_service(db: Session = Depends(get_db)) -> EmployeeService:
     return EmployeeService(db)
 
 
+def get_ai_org_service(db: Session = Depends(get_db)):
+    from app.services.ai_organization import AIOrganizationService
+
+    return AIOrganizationService(db)
+
+
+def get_ai_reporting_service(db: Session = Depends(get_db)):
+    from app.services.ai_reporting import AIReportingService
+
+    return AIReportingService(db)
+
+
 # --- Authentication / RBAC ------------------------------------------------
 
 

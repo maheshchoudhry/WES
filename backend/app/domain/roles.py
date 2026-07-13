@@ -29,6 +29,10 @@ class Permission(str, Enum):
     EMPLOYEE_WRITE = "employee:write"
     DASHBOARD_READ = "dashboard:read"
     SELF_READ = "self:read"
+    # AI Company Core (Sprint 06)
+    AI_READ = "ai:read"
+    AI_UPDATE = "ai:update"  # edit existing AI employees
+    AI_MANAGE = "ai:manage"  # create / delete AI employees
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -39,15 +43,17 @@ _READS = {
     Permission.EMPLOYEE_READ,
     Permission.DASHBOARD_READ,
     Permission.SELF_READ,
+    Permission.AI_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
     # Full access to everything.
     Role.FOUNDER: set(Permission),
-    # Department access: may manage departments and employees, not the company.
-    Role.DIRECTOR: _READS | {Permission.DEPARTMENT_WRITE, Permission.EMPLOYEE_WRITE},
-    # Department management: may manage employees only.
-    Role.DEPARTMENT_HEAD: _READS | {Permission.EMPLOYEE_WRITE},
+    # Department access: may manage departments and employees, and update AI org.
+    Role.DIRECTOR: _READS
+    | {Permission.DEPARTMENT_WRITE, Permission.EMPLOYEE_WRITE, Permission.AI_UPDATE},
+    # Department management: may manage employees and update AI org.
+    Role.DEPARTMENT_HEAD: _READS | {Permission.EMPLOYEE_WRITE, Permission.AI_UPDATE},
     # Self workspace: read-only across the workspace.
     Role.EMPLOYEE: set(_READS),
     # Read-only access.
