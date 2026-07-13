@@ -1,10 +1,6 @@
-export function Card({
-  title,
-  children,
-}: {
-  title?: string;
-  children: React.ReactNode;
-}) {
+import type { ReactNode } from 'react';
+
+export function Card({ title, children }: { title?: string; children: ReactNode }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       {title ? (
@@ -15,7 +11,7 @@ export function Card({
   );
 }
 
-export function StatCard({ label, value }: { label: string; value: React.ReactNode }) {
+export function StatCard({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="text-sm text-slate-500">{label}</div>
