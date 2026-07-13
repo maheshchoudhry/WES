@@ -25,8 +25,13 @@ secrets/
 
 # Python / TypeScript build info
 .mypy_cache/
+.ruff_cache/
 *.tsbuildinfo
 .vite/
+
+# Developer platform runtime output (keep the logs/ dir via .gitkeep)
+logs/*
+!logs/.gitkeep
 
 # Logs and temporary files
 *.log
