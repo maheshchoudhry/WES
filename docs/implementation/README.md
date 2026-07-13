@@ -12,6 +12,7 @@ framework) — it documents the software as built.
 | Sprint 03 | [Founder Workspace & Executive Dashboard](./dashboard.md) | Implemented |
 | Sprint 04 | [Authentication & RBAC](./auth.md) | Implemented |
 | Sprint 06 | [AI Company Core](./ai-company.md) | Implemented |
+| Sprint 07 | [AI Work Management](./work-management.md) | Implemented |
 
 ## Contents
 
@@ -19,6 +20,7 @@ framework) — it documents the software as built.
 - [Founder Dashboard](./dashboard.md) — dashboard aggregation, widgets, screenshots
 - [Authentication & RBAC](./auth.md) — JWT auth, roles/permissions, login flow
 - [AI Company Core](./ai-company.md) — AI organization: employees, roles, org chart
+- [AI Work Management](./work-management.md) — projects, sprints, tasks, Kanban, assignments
 - [API Reference](./api.md) — every REST endpoint, request/response shapes, error codes
 - [Setup Guide](./setup.md) — run locally and with Docker
 
