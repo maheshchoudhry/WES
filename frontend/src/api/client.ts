@@ -1,10 +1,17 @@
-// Thin fetch wrapper that speaks the backend's response envelope.
+// Thin fetch wrapper that speaks the backend's response envelope and handles
+// authentication: it attaches the access token, transparently refreshes it once
+// on a 401, and signals the app shell on auth failures.
 //
 // Success: { data, meta? }. Error: { error: { code, message, details } }.
-// On a non-2xx response we throw an ApiError carrying the parsed message.
+
+import { authEvents } from "../auth/authEvents";
+import { tokenStore } from "../auth/tokenStore";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 const API_PREFIX = "/api/v1";
+
+// Endpoints that must never trigger the refresh-and-retry loop.
+const NO_REFRESH = ["/auth/login", "/auth/refresh", "/auth/logout"];
 
 export class ApiError extends Error {
   code: string;
@@ -20,18 +27,21 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function rawRequest<T>(path: string, init: RequestInit, withAuth: boolean): Promise<T> {
   const url = `${BASE_URL}${API_PREFIX}${path}`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...((init.headers as Record<string, string>) ?? {}),
+  };
+  if (withAuth && tokenStore.access) {
+    headers.Authorization = `Bearer ${tokenStore.access}`;
+  }
 
   let res: Response;
   try {
-    res = await fetch(url, {
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      ...init,
-    });
+    res = await fetch(url, { ...init, headers });
   } catch {
-    // fetch() itself rejected: the API is unreachable (wrong URL, backend down,
-    // CORS blocked). Surface an actionable message instead of a bare TypeError.
     throw new ApiError(
       0,
       "NETWORK_ERROR",
@@ -39,15 +49,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     );
   }
 
-  if (res.status === 204) {
-    return undefined as T;
-  }
+  if (res.status === 204) return undefined as T;
 
   const text = await res.text();
-
-  // Parse the body as JSON. A non-JSON body (commonly an HTML index.html served
-  // by a static host when /api is not proxied to the backend) is a configuration
-  // problem, not a valid API response — report it clearly.
   let body: unknown = null;
   if (text) {
     try {
@@ -76,6 +80,53 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return body as T;
+}
+
+async function tryRefresh(): Promise<boolean> {
+  const refreshToken = tokenStore.refresh;
+  if (!refreshToken) return false;
+  try {
+    const res = await rawRequest<{ data: { tokens: { access_token: string } } }>(
+      "/auth/refresh",
+      { method: "POST", body: JSON.stringify({ refresh_token: refreshToken }) },
+      false,
+    );
+    tokenStore.setAccess(res.data.tokens.access_token);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const eligible = !NO_REFRESH.includes(path.split("?")[0]);
+  try {
+    return await rawRequest<T>(path, init, true);
+  } catch (err) {
+    if (!(err instanceof ApiError)) throw err;
+
+    if (err.status === 403) {
+      authEvents.emitForbidden();
+      throw err;
+    }
+
+    if (err.status === 401 && eligible) {
+      if (await tryRefresh()) {
+        try {
+          return await rawRequest<T>(path, init, true);
+        } catch (retryErr) {
+          if (retryErr instanceof ApiError && retryErr.status === 401) {
+            tokenStore.clear();
+            authEvents.emitUnauthorized();
+          }
+          throw retryErr;
+        }
+      }
+      tokenStore.clear();
+      authEvents.emitUnauthorized();
+    }
+    throw err;
+  }
 }
 
 export const http = {
