@@ -2,10 +2,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { aiApi } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
 import { Dashboard } from "../pages/Dashboard";
 
 vi.mock("../api/dashboard");
+vi.mock("../api/ai");
 
 const company = {
   id: "c1",
@@ -27,6 +29,17 @@ function renderDashboard() {
 }
 
 beforeEach(() => {
+  vi.mocked(aiApi.summary).mockResolvedValue({
+    data: {
+      total_employees: 12,
+      department_count: 3,
+      role_count: 12,
+      by_status: { active: 12 },
+      by_department: { Engineering: 8 },
+      ceo_present: true,
+      organization_health: "healthy",
+    },
+  } as never);
   vi.mocked(dashboardApi.departments).mockResolvedValue({
     data: [
       {
