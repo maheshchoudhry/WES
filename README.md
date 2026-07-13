@@ -29,7 +29,10 @@ WES/
 ├─ README.md            Project overview
 ├─ LICENSE              MIT License
 ├─ .gitignore           Ignored files
-├─ docs/                Company documentation
+├─ docker-compose.yml   WES OS local orchestration (Postgres + backend + frontend)
+├─ backend/             WES OS — Company Engine backend (FastAPI + SQLAlchemy)
+├─ frontend/            WES OS — Company Engine frontend (React + Vite + TypeScript)
+├─ docs/                Company + implementation documentation
 ├─ Blueprint/           Operating framework (Vol. 01–10) — official reference
 ├─ Company/             Company profile, org chart, directories, policies
 ├─ Departments/         One directory per department
@@ -42,6 +45,18 @@ WES/
 ├─ Reports/             Status and review reports
 └─ Assets/              Shared assets
 ```
+
+## WES OS — Company Engine
+
+WES OS is the WES Operating System. Its first production module, the **Core
+Company Engine** (Sprint 02), manages the foundational organizational entities —
+**Company, Departments, Employees** — that every future module depends on.
+
+- Backend: [`/backend`](./backend/README.md) — FastAPI, SQLAlchemy, Alembic, PostgreSQL
+- Frontend: [`/frontend`](./frontend/README.md) — React, Vite, TypeScript
+- Docs: [`docs/implementation/`](./docs/implementation/README.md) — architecture, API reference, setup
+
+Quick start: `docker compose up --build` (see the [Setup Guide](./docs/implementation/setup.md)).
 
 ## Blueprint
 
