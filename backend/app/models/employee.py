@@ -6,11 +6,13 @@ the WES Reporting Hierarchy.
 """
 
 import uuid
+from datetime import datetime
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.enums import AuthorityLevel, EmployeeStatus
+from app.domain.roles import Role
 from app.models.base import GUID, Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 
@@ -37,6 +39,14 @@ class Employee(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     status: Mapped[EmployeeStatus] = mapped_column(
         String(20), nullable=False, default=EmployeeStatus.ONBOARDING
     )
+
+    # --- Authentication / RBAC fields (Sprint 04) ---
+    role: Mapped[Role] = mapped_column(String(20), nullable=False, default=Role.EMPLOYEE)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    last_login: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    failed_login_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    refresh_token_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     company: Mapped["Company"] = relationship()  # noqa: F821
     department: Mapped["Department | None"] = relationship(  # noqa: F821

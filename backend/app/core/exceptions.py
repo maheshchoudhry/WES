@@ -37,3 +37,10 @@ class ValidationError(DomainError):
 
     status_code = 422
     code = "VALIDATION_ERROR"
+
+
+class ForbiddenError(DomainError):
+    """The authenticated user lacks permission for this action."""
+
+    status_code = 403
+    code = "FORBIDDEN"

@@ -43,6 +43,17 @@ class Settings(BaseSettings):
         "http://localhost:4173,http://127.0.0.1:4173"
     )
 
+    # --- Authentication / JWT (Sprint 04) ---
+    # WES_JWT_SECRET MUST be overridden in production. The default is for local
+    # development only.
+    jwt_secret: str = "dev-insecure-secret-change-in-production"
+    jwt_algorithm: str = "HS256"
+    access_token_minutes: int = 30
+    refresh_token_days: int = 7
+    refresh_token_remember_days: int = 30
+    # Default password applied to seeded employees so they can log in locally.
+    seed_default_password: str = "WesOs2026!"
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
