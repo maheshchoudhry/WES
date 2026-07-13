@@ -7,12 +7,14 @@ The Blueprint is the source of truth for how WORLD Engineering Studio (WES) oper
 | [01](./Volume-01-Foundation/README.md) | Foundation | Drafted (v1.0) |
 | [02](./Volume-02-Organization/README.md) | Organization | Drafted (v1.0) |
 | [03](./Volume-03-Roles/README.md) | Roles | Drafted (v1.0) |
-| [04](./Volume-04-Engineering-System/README.md) | Engineering System | Draft |
-| [05](./Volume-05-AI-System/README.md) | AI System | Draft |
-| [06](./Volume-06-Technology-Stack/README.md) | Technology Stack | Draft |
+| [04](./Volume-04-Engineering-System/README.md) | Engineering System | Drafted (v1.0) |
+| [05](./Volume-05-AI-System/README.md) | AI System | Drafted (v1.0) |
+| [06](./Volume-06-Technology-Stack/README.md) | Technology Stack | Drafted (v1.0) |
 | [07](./Volume-07-Project-Management/README.md) | Project Management | Draft |
 | [08](./Volume-08-Security-Quality/README.md) | Security & Quality | Draft |
 | [09](./Volume-09-Knowledge-Management/README.md) | Knowledge Management | Draft |
 | [10](./Volume-10-Automation/README.md) | Automation | Draft |
 
-**Phase 1** delivered brief v1.0 drafts of Volumes 01–03. Remaining volumes hold placeholder content for future phases.
+**Phase 1** delivered brief v1.0 drafts of Volumes 01–03.
+**Phase 2** delivered brief v1.0 drafts of Volumes 04–06.
+Remaining volumes (07–10) hold placeholder content for future phases.
