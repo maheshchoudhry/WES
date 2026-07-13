@@ -30,9 +30,11 @@ WES/
 ├─ LICENSE              MIT License
 ├─ .gitignore           Ignored files
 ├─ docker-compose.yml   WES OS local orchestration (Postgres + backend + frontend)
-├─ backend/             WES OS — Company Engine backend (FastAPI + SQLAlchemy)
-├─ frontend/            WES OS — Company Engine frontend (React + Vite + TypeScript)
-├─ docs/                Company + implementation documentation
+├─ scripts/             Developer platform (dev, stop, reset, test, health, …)
+├─ backend/             WES OS — backend (FastAPI + SQLAlchemy + Alembic)
+├─ frontend/            WES OS — frontend (React + Vite + TypeScript)
+├─ logs/                Runtime logs, pids, health reports (git-ignored)
+├─ docs/                Company, implementation, and developer documentation
 ├─ Blueprint/           Operating framework (Vol. 01–10) — official reference
 ├─ Company/             Company profile, org chart, directories, policies
 ├─ Departments/         One directory per department
@@ -46,17 +48,54 @@ WES/
 └─ Assets/              Shared assets
 ```
 
-## WES OS — Company Engine
+## WES OS — Quick Start
 
-WES OS is the WES Operating System. Its first production module, the **Core
-Company Engine** (Sprint 02), manages the foundational organizational entities —
-**Company, Departments, Employees** — that every future module depends on.
+WES OS is the WES Operating System. It runs from **one command** — no manual
+backend, frontend, migration, or seed steps.
+
+```bash
+git clone <repo-url> WES
+cd WES
+./scripts/bootstrap.sh     # install deps, create .env, prepare DB (once)
+./scripts/dev.sh           # start everything + verify
+```
+
+Then open:
+
+- **Frontend** — http://localhost:5173
+- **Backend API** — http://127.0.0.1:8000
+- **Swagger** — http://127.0.0.1:8000/docs
+
+Sign in with a seeded account (password `WesOs2026!`), e.g. `wes-emp-001@wes.studio` (Founder).
+
+| Command | Purpose |
+|---------|---------|
+| `./scripts/dev.sh` | Start the full stack (one command) |
+| `./scripts/stop.sh` | Stop backend + frontend |
+| `./scripts/reset.sh` | Wipe DB, migrate, seed, restart |
+| `./scripts/health.sh` | Verify a running system |
+| `./scripts/test.sh` · `lint.sh` · `format.sh` | Tests / lint / format |
+
+Full guides: [Getting Started](./docs/dev/getting-started.md) ·
+[One-Command Startup](./docs/dev/one-command-startup.md) ·
+[Developer Guide](./docs/dev/developer-guide.md) ·
+[Environment Setup](./docs/dev/environment-setup.md) ·
+[Troubleshooting](./docs/dev/troubleshooting.md) ·
+[Common Errors](./docs/dev/common-errors.md)
+
+### Modules
+
+The WES OS application (`backend/` + `frontend/`) delivers, per sprint:
+
+- **Company Engine** — Company, Departments, Employees ([docs](./docs/implementation/company-engine.md))
+- **Founder Dashboard** — executive overview on live data ([docs](./docs/implementation/dashboard.md))
+- **Authentication & RBAC** — JWT auth, five roles ([docs](./docs/implementation/auth.md))
 
 - Backend: [`/backend`](./backend/README.md) — FastAPI, SQLAlchemy, Alembic, PostgreSQL
 - Frontend: [`/frontend`](./frontend/README.md) — React, Vite, TypeScript
-- Docs: [`docs/implementation/`](./docs/implementation/README.md) — architecture, API reference, setup
+- Docs: [`docs/implementation/`](./docs/implementation/README.md) and [`docs/dev/`](./docs/dev/getting-started.md)
 
-Quick start: `docker compose up --build` (see the [Setup Guide](./docs/implementation/setup.md)).
+Container path (optional): `docker compose up --build` (see the [Setup Guide](./docs/implementation/setup.md)).
 
 ## Blueprint
 
