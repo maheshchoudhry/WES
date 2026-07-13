@@ -13,8 +13,20 @@ Desktop.ini
 # Environment and secrets
 .env
 .env.*
+!.env.example
+!**/.env.example
 *.local
 secrets/
+
+# Local databases (SQLite dev/test artifacts)
+*.db
+*.sqlite
+*.sqlite3
+
+# Python / TypeScript build info
+.mypy_cache/
+*.tsbuildinfo
+.vite/
 
 # Logs and temporary files
 *.log
