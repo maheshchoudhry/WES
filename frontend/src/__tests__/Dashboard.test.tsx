@@ -4,10 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { aiApi } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
+import { workApi } from "../api/work";
 import { Dashboard } from "../pages/Dashboard";
 
 vi.mock("../api/dashboard");
 vi.mock("../api/ai");
+vi.mock("../api/work");
 
 const company = {
   id: "c1",
@@ -29,6 +31,19 @@ function renderDashboard() {
 }
 
 beforeEach(() => {
+  vi.mocked(workApi.founderSummary).mockResolvedValue({
+    data: {
+      total_projects: 1,
+      total_tasks: 10,
+      tasks_by_status: { done: 3 },
+      tasks_by_priority: {},
+      blocked_tasks: 1,
+      sprint_progress: [],
+      velocity: 44,
+      upcoming_deadlines: [],
+      ai_workload: {},
+    },
+  } as never);
   vi.mocked(aiApi.summary).mockResolvedValue({
     data: {
       total_employees: 12,

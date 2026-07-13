@@ -3,11 +3,23 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { aiApi } from "../api/ai";
+import { workApi } from "../api/work";
 import { AIDashboard } from "../pages/ai/AIDashboard";
 
 vi.mock("../api/ai");
+vi.mock("../api/work");
 
 beforeEach(() => {
+  vi.mocked(workApi.aiSummary).mockResolvedValue({
+    data: {
+      assigned_work: 5,
+      current_tasks: 1,
+      completed_work: 3,
+      team_capacity: { team_size: 12, open_tasks: 5, avg_load: 0.42 },
+      work_distribution: {},
+      department_load: { Engineering: 5 },
+    },
+  } as never);
   vi.mocked(aiApi.summary).mockResolvedValue({
     data: {
       total_employees: 12,
