@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.database import SessionLocal
 from app.db.seed_ai import seed_ai
+from app.db.seed_work import seed_work
 from app.domain.enums import AuthorityLevel, EmployeeStatus, EntityStatus
 from app.domain.roles import Role
 from app.models.company import Company
@@ -196,6 +197,8 @@ def seed(db: Session) -> Company | None:
     if existing is not None:
         ensure_auth_credentials(db)
         seed_ai(db)
+        db.flush()
+        seed_work(db)
         db.commit()
         return None
 
@@ -240,6 +243,8 @@ def seed(db: Session) -> Company | None:
         employees[code] = emp
 
     seed_ai(db)
+    db.flush()
+    seed_work(db)
     db.commit()
     return company
 
