@@ -83,4 +83,17 @@ Assign department body:
 { "department_id": "<uuid|null>" }
 ```
 
+## Dashboard (read-only aggregation — Sprint 03)
+
+All `GET`, under `/api/v1/dashboard`. Composed from Company Engine data; no new tables.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/dashboard/company-summary` | Company + department/employee counts |
+| GET | `/dashboard/stats` | Totals and breakdowns (by status, by authority) |
+| GET | `/dashboard/departments` | Per-department employee counts |
+| GET | `/dashboard/employees` | Employee directory (resolved department & manager) |
+| GET | `/dashboard/activity?limit=N` | Recent activity (default 10, max 50) |
+| GET | `/dashboard/health` | API + database health and entity counts |
+
 Interactive OpenAPI docs are served at `/docs` when the backend is running.
