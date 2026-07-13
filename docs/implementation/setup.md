@@ -32,9 +32,22 @@ cd backend
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env                       # SQLite by default
-alembic upgrade head
-python -m app.db.seed                       # optional
 uvicorn app.main:app --reload               # http://localhost:8000
+```
+
+The backend **self-initializes on startup**: it applies Alembic migrations and
+seeds the WES organization automatically (controlled by `WES_AUTO_MIGRATE` and
+`WES_SEED_ON_START`, both on by default). No separate migration step is needed.
+
+To initialize the database without starting the server, or to disable
+auto-initialization, use:
+
+```bash
+python -m app.db.init          # apply migrations + seed explicitly
+# or run pieces manually:
+alembic upgrade head
+python -m app.db.seed
+# to turn auto-init off:  WES_AUTO_MIGRATE=false uvicorn app.main:app
 ```
 
 To use PostgreSQL instead of SQLite, set in `backend/.env`:

@@ -5,15 +5,22 @@ by Blueprint Vol. 06). A StaticPool keeps a single shared connection so the app
 and the test see the same data.
 """
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
+import os
 
-from app.core.database import get_db
-from app.main import app
-from app.models import Base
+# Disable startup auto-migration/seeding before the app is imported: tests manage
+# their own isolated in-memory schema and must not touch the configured database.
+os.environ["WES_AUTO_MIGRATE"] = "false"
+os.environ["WES_SEED_ON_START"] = "false"
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy.orm import Session, sessionmaker  # noqa: E402
+from sqlalchemy.pool import StaticPool  # noqa: E402
+
+from app.core.database import get_db  # noqa: E402
+from app.main import app  # noqa: E402
+from app.models import Base  # noqa: E402
 
 
 @pytest.fixture

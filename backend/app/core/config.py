@@ -26,6 +26,13 @@ class Settings(BaseSettings):
     debug: bool = True
     api_v1_prefix: str = "/api/v1"
 
+    # Runtime initialization. When auto_migrate is on, the backend applies Alembic
+    # migrations on startup against the database it will serve, so the schema is
+    # always present (no "no such table" errors). seed_on_start loads the initial
+    # WES organization (idempotent).
+    auto_migrate: bool = True
+    seed_on_start: bool = True
+
     # SQLite default keeps local dev and tests zero-dependency; production uses
     # PostgreSQL via WES_DATABASE_URL (see .env.example / docker-compose).
     database_url: str = "sqlite:///./wes_os.db"

@@ -4,6 +4,9 @@ Wires the API router, CORS, and the exception handlers that translate domain
 errors and request-validation failures into the standard error envelope.
 """
 
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +17,26 @@ from app.api.v1.router import api_router
 from app.core.config import get_settings
 from app.core.exceptions import DomainError
 
+logger = logging.getLogger("app")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize the database on startup so the schema (and seed) are present.
+
+    Controlled by ``WES_AUTO_MIGRATE`` / ``WES_SEED_ON_START``. This makes the
+    backend self-initializing — a freshly cloned project runs without a separate
+    manual migration step.
+    """
+    settings = get_settings()
+    if settings.auto_migrate:
+        from app.db.init import init_database
+
+        init_database(seed_data=settings.seed_on_start)
+    else:
+        logger.info("Auto-migration disabled (WES_AUTO_MIGRATE=false).")
+    yield
+
 
 def create_app() -> FastAPI:
     settings = get_settings()
@@ -22,6 +45,7 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         version=__version__,
         description="WES OS — Core Company Engine (Company, Departments, Employees).",
+        lifespan=lifespan,
     )
 
     app.add_middleware(
