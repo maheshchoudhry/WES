@@ -328,7 +328,276 @@ tbody tr:hover {
   margin-top: 8px;
 }
 
+/* Navigation — reserved (future) items */
+.nav-reserved {
+  margin-top: 28px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-reserved-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding: 0 12px 6px;
+}
+
+.nav-disabled {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--muted);
+  opacity: 0.5;
+  font-size: 14px;
+  cursor: not-allowed;
+}
+
+/* Dashboard layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.dashboard-grid .span-all {
+  grid-column: 1 / -1;
+}
+
+.dashboard-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.stat-hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.stat-ok .value {
+  color: #4cd6a0;
+}
+
+.stat-muted .value {
+  color: var(--muted);
+}
+
+/* Section card */
+.section-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.section-card > :not(.section-head) {
+  padding: 16px 20px;
+}
+
+.section-card .table-wrap {
+  border: none;
+  border-radius: 0;
+}
+
+/* Department cards */
+.dept-grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.dept-card {
+  padding: 16px;
+}
+
+.dept-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dept-code {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.dept-card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.dept-focus {
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.dept-count {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.dept-count strong {
+  color: var(--text);
+  font-size: 16px;
+}
+
+/* Activity feed */
+.activity {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.activity-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.activity-company {
+  background: var(--accent);
+}
+.activity-department {
+  background: #7c5cff;
+}
+.activity-employee {
+  background: var(--ok);
+}
+
+.activity-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.activity-label {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-body .muted {
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.activity-time {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* Health widget */
+.health {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.health-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+/* Org snapshot tree */
+.org-tree,
+.org-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.org-tree ul {
+  margin-left: 16px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+
+.org-tree li {
+  padding: 4px 0;
+}
+
+.org-node {
+  display: flex;
+  flex-direction: column;
+}
+
+.org-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.org-role {
+  font-size: 12px;
+}
+
+/* Quick actions */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quick-action {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-action.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quick-action small {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 /* Responsive */
+@media (max-width: 980px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 760px) {
   .app {
     grid-template-columns: 1fr;
