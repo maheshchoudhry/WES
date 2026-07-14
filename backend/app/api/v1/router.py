@@ -14,6 +14,7 @@ from app.api.v1 import (
     employees,
     execution,
     health,
+    knowledge,
     libraries,
     orchestration,
     projects,
@@ -42,3 +43,4 @@ api_router.include_router(execution.router)
 api_router.include_router(libraries.router)
 api_router.include_router(providers.router)
 api_router.include_router(orchestration.router)
+api_router.include_router(knowledge.router)

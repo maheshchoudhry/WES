@@ -148,3 +148,83 @@ def get_provider_service(db: Session = Depends(get_db)):
     from app.services.providers_service import ProviderService
 
     return ProviderService(db)
+
+
+# --- Knowledge Engine service providers (Sprint 10) -----------------------
+
+
+def _actor(user: "CurrentUser") -> str:
+    role = user.role.value if hasattr(user.role, "value") else user.role
+    return f"{user.full_name} ({role})"
+
+
+def get_knowledge_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.knowledge import KnowledgeService
+
+    return KnowledgeService(db, actor=_actor(user))
+
+
+def get_approval_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.knowledge_versions import ApprovalService
+
+    return ApprovalService(db, actor=_actor(user))
+
+
+def get_knowledge_graph_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_graph import RelationshipService
+
+    return RelationshipService(db)
+
+
+def get_reference_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_graph import ReferenceService
+
+    return ReferenceService(db)
+
+
+def get_version_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_versions import VersionService
+
+    return VersionService(db)
+
+
+def get_search_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_search import SearchService
+
+    return SearchService(db)
+
+
+def get_retrieval_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_search import RetrievalService
+
+    return RetrievalService(db)
+
+
+def get_bookmark_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_collections import BookmarkService
+
+    return BookmarkService(db)
+
+
+def get_collection_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_collections import CollectionService
+
+    return CollectionService(db)
+
+
+def get_knowledge_analytics_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_analytics import AnalyticsService
+
+    return AnalyticsService(db)
+
+
+def get_adr_service(db: Session = Depends(get_db)):
+    from app.services.knowledge_analytics import ADRService
+
+    return ADRService(db)
