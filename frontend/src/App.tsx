@@ -24,6 +24,13 @@ import { BudgetDashboard } from "./pages/orchestration/BudgetDashboard";
 import { ExecutionMonitor } from "./pages/orchestration/ExecutionMonitor";
 import { StreamingViewer } from "./pages/orchestration/StreamingViewer";
 import { ConnectionTester } from "./pages/orchestration/ConnectionTester";
+import { PipelineDashboard } from "./pages/devops/PipelineDashboard";
+import { DeploymentDashboard } from "./pages/devops/DeploymentDashboard";
+import { ReleaseDashboard } from "./pages/devops/ReleaseDashboard";
+import { MonitoringDashboard } from "./pages/devops/MonitoringDashboard";
+import { IncidentDashboard } from "./pages/devops/IncidentDashboard";
+import { EnvironmentDashboard } from "./pages/devops/EnvironmentDashboard";
+import { RollbackDashboard } from "./pages/devops/RollbackDashboard";
 import { QualityGateDashboard } from "./pages/quality/QualityGateDashboard";
 import { SecurityDashboard } from "./pages/quality/SecurityDashboard";
 import { PerformanceDashboard as QualityPerformanceDashboard } from "./pages/quality/PerformanceDashboard";
@@ -151,6 +158,13 @@ export default function App() {
         <Route path="/quality/performance" element={<QualityPerformanceDashboard />} />
         <Route path="/quality/release" element={<ReleaseReadinessDashboard />} />
         <Route path="/quality/risk" element={<RiskDashboard />} />
+        <Route path="/devops" element={<PipelineDashboard />} />
+        <Route path="/devops/deployments" element={<DeploymentDashboard />} />
+        <Route path="/devops/releases" element={<ReleaseDashboard />} />
+        <Route path="/devops/monitoring" element={<MonitoringDashboard />} />
+        <Route path="/devops/incidents" element={<IncidentDashboard />} />
+        <Route path="/devops/environments" element={<EnvironmentDashboard />} />
+        <Route path="/devops/rollback" element={<RollbackDashboard />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>

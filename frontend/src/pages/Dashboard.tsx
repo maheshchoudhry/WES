@@ -8,6 +8,7 @@ import { orchestrationApi, type OrchFounderDash } from "../api/orchestration";
 import { repositoryApi, type Repository } from "../api/repository";
 import { developmentApi, type DevFounderDash } from "../api/development";
 import { qualityApi, type QualityFounderDash } from "../api/quality";
+import { devopsApi, type DevOpsFounderDash } from "../api/devops";
 import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
   ActivityItem,
@@ -43,6 +44,7 @@ interface DashboardData {
   repository: Repository | null;
   development: DevFounderDash;
   quality: QualityFounderDash;
+  devops: DevOpsFounderDash;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
@@ -60,6 +62,7 @@ async function loadDashboard(): Promise<DashboardData> {
     repository,
     development,
     quality,
+    devops,
   ] = await Promise.all([
     dashboardApi.stats(),
     dashboardApi.departments(),
@@ -74,6 +77,7 @@ async function loadDashboard(): Promise<DashboardData> {
     repositoryApi.list().then((r) => ({ data: r.data[0] ?? null })),
     developmentApi.founderDashboard(),
     qualityApi.founderDashboard(),
+    devopsApi.founderDashboard(),
   ]);
   return {
     stats: stats.data,
@@ -89,6 +93,7 @@ async function loadDashboard(): Promise<DashboardData> {
     repository: repository.data,
     development: development.data,
     quality: quality.data,
+    devops: devops.data,
   };
 }
 
@@ -113,6 +118,7 @@ export function Dashboard() {
     repository,
     development,
     quality,
+    devops,
   } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
@@ -255,6 +261,41 @@ export function Dashboard() {
                     {p.is_default ? " ★" : ""}
                   </span>
                 ))}
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* DevOps / CI-CD summary */}
+          <div className="span-all">
+            <SectionCard
+              title="DevOps & CI/CD"
+              action={
+                <Link to="/devops" className="btn btn-sm">
+                  Pipelines
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="Pipelines" value={devops.total_pipelines} />
+                <StatCard
+                  label="Awaiting Production"
+                  value={devops.awaiting_production}
+                  accent={devops.awaiting_production > 0 ? "warn" : "ok"}
+                />
+                <StatCard label="Releases" value={devops.releases} accent="ok" />
+                <StatCard
+                  label="System Health"
+                  value={
+                    devops.system_health ? (
+                      <span style={{ textTransform: "capitalize" }}>
+                        {devops.system_health.overall_status}
+                      </span>
+                    ) : (
+                      "—"
+                    )
+                  }
+                  accent={devops.system_health?.overall_status === "healthy" ? "ok" : "warn"}
+                />
               </div>
             </SectionCard>
           </div>

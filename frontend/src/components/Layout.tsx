@@ -87,6 +87,17 @@ const qualityNav = [
   { to: "/quality/release", label: "Release Readiness", end: false },
 ];
 
+// Enterprise DevOps Platform (Sprint 15).
+const devopsNav = [
+  { to: "/devops", label: "CI/CD Pipeline", end: true },
+  { to: "/devops/deployments", label: "Deployments", end: false },
+  { to: "/devops/releases", label: "Releases", end: false },
+  { to: "/devops/monitoring", label: "Monitoring", end: false },
+  { to: "/devops/incidents", label: "Incidents", end: false },
+  { to: "/devops/environments", label: "Environments", end: false },
+  { to: "/devops/rollback", label: "Rollback", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
 const reserved = ["Reports", "Settings"];
 
@@ -174,6 +185,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="nav-reserved">
           <div className="nav-reserved-label">Quality Gates</div>
           {qualityNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">DevOps</div>
+          {devopsNav.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end}>
               {l.label}
             </NavLink>
