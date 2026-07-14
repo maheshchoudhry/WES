@@ -19,6 +19,11 @@ import { Unauthorized } from "./pages/Unauthorized";
 import { Conversation } from "./pages/orchestration/Conversation";
 import { Executions } from "./pages/orchestration/Executions";
 import { ProviderSettings } from "./pages/orchestration/ProviderSettings";
+import { ProviderDashboard } from "./pages/orchestration/ProviderDashboard";
+import { BudgetDashboard } from "./pages/orchestration/BudgetDashboard";
+import { ExecutionMonitor } from "./pages/orchestration/ExecutionMonitor";
+import { StreamingViewer } from "./pages/orchestration/StreamingViewer";
+import { ConnectionTester } from "./pages/orchestration/ConnectionTester";
 import { AdvancedSearch } from "./pages/knowledge/AdvancedSearch";
 import { ArchitectureDecisions } from "./pages/knowledge/ArchitectureDecisions";
 import { Bookmarks } from "./pages/knowledge/Bookmarks";
@@ -86,7 +91,12 @@ export default function App() {
         <Route path="/execution/sops" element={<SOPLibrary />} />
         <Route path="/orchestration/runs" element={<Executions />} />
         <Route path="/orchestration/threads/:threadId" element={<Conversation />} />
+        <Route path="/orchestration/monitor" element={<ExecutionMonitor />} />
+        <Route path="/orchestration/streaming" element={<StreamingViewer />} />
         <Route path="/settings/providers" element={<ProviderSettings />} />
+        <Route path="/providers/dashboard" element={<ProviderDashboard />} />
+        <Route path="/providers/budget" element={<BudgetDashboard />} />
+        <Route path="/providers/connection-test" element={<ConnectionTester />} />
         <Route path="/knowledge" element={<KnowledgeDashboard />} />
         <Route path="/knowledge/library" element={<KnowledgeLibrary />} />
         <Route path="/knowledge/new" element={<DocumentEditor />} />

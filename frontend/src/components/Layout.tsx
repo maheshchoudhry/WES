@@ -34,10 +34,15 @@ const execNav = [
   { to: "/execution/performance", label: "Performance", end: false },
 ];
 
-// Orchestration Engine (Sprint 09).
+// Orchestration Engine (Sprint 09) + Provider Platform (Sprint 11).
 const orchNav = [
   { to: "/orchestration/runs", label: "Executions", end: false },
+  { to: "/orchestration/monitor", label: "Execution Monitor", end: false },
+  { to: "/orchestration/streaming", label: "Streaming Viewer", end: false },
   { to: "/settings/providers", label: "AI Providers", end: false },
+  { to: "/providers/dashboard", label: "Provider Dashboard", end: false },
+  { to: "/providers/budget", label: "Budget", end: false },
+  { to: "/providers/connection-test", label: "Connection Tester", end: false },
 ];
 
 // Knowledge Engine (Sprint 10).
