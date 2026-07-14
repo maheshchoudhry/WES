@@ -13,17 +13,22 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.core.exceptions import NotFoundError, ValidationError
 from app.models.ai import AIEmployee, AIRole
 from app.models.orchestration import AIProvider, ProviderConfig, ProviderHealthRecord
+from app.models.provider_platform import ProviderEvent, ProviderModel
 from app.providers import PROVIDER_NAMES, ProviderFactory, ProviderRegistry
+from app.services.secret_service import SecretService
 
 _ROLE_PREFIX = "role:"
 
 
 class ProviderService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, actor: str = "System"):
         self.db = db
+        self.actor = actor
+        self.secrets = SecretService(db, actor=actor)
 
     # -- reads -------------------------------------------------------------
 
@@ -55,7 +60,7 @@ class ProviderService:
             .order_by(ProviderHealthRecord.checked_at.desc())
         )
         cfg = self.config_dict(p)
-        # Mask any secret-like values.
+        # Mask any secret-like values in plain config (real secrets are separate).
         masked = {k: ("***" if "key" in k.lower() and v else v) for k, v in cfg.items()}
         return {
             "id": str(p.id),
@@ -64,19 +69,139 @@ class ProviderService:
             "enabled": p.enabled,
             "is_default": p.is_default,
             "default_model": p.default_model,
+            "active_model": p.active_model or p.default_model,
+            "priority": p.priority,
             "config": masked,
+            "has_secret": self.secrets.has_secret(p.id),
+            "secret_hint": next(
+                (s["hint"] for s in self.secrets.list_masked(p.id) if s["key_name"] == "api_key"),
+                None,
+            ),
+            "models": [self.serialize_model(m) for m in self.models_for(p.id)],
             "health": (
                 (health.status.value if hasattr(health.status, "value") else health.status)
                 if health
                 else "unknown"
             ),
+            "health_detail": (health.detail if health else None),
         }
+
+    # -- models ------------------------------------------------------------
+
+    def models_for(self, provider_id: uuid.UUID) -> list[ProviderModel]:
+        return list(
+            self.db.scalars(
+                select(ProviderModel)
+                .where(ProviderModel.provider_id == provider_id)
+                .order_by(ProviderModel.display_name)
+            ).all()
+        )
+
+    def serialize_model(self, m: ProviderModel) -> dict:
+        return {
+            "id": str(m.id),
+            "code": m.code,
+            "display_name": m.display_name,
+            "is_default": m.is_default,
+            "enabled": m.enabled,
+            "context_window": m.context_window,
+            "input_cost_per_1k": m.input_cost_per_1k,
+            "output_cost_per_1k": m.output_cost_per_1k,
+        }
+
+    def add_model(
+        self,
+        provider_id: uuid.UUID,
+        code: str,
+        display_name: str,
+        *,
+        is_default: bool = False,
+        context_window: int | None = None,
+        input_cost_per_1k: float = 0.0,
+        output_cost_per_1k: float = 0.0,
+    ) -> ProviderModel:
+        provider = self.get(provider_id)
+        existing = self.db.scalar(
+            select(ProviderModel).where(
+                ProviderModel.provider_id == provider_id, ProviderModel.code == code
+            )
+        )
+        if existing is not None:
+            return existing
+        m = ProviderModel(
+            provider_id=provider_id,
+            code=code,
+            display_name=display_name,
+            is_default=is_default,
+            context_window=context_window,
+            input_cost_per_1k=input_cost_per_1k,
+            output_cost_per_1k=output_cost_per_1k,
+        )
+        self.db.add(m)
+        if is_default or provider.active_model is None:
+            provider.active_model = code
+        self.db.flush()
+        return m
+
+    def set_active_model(self, provider_id: uuid.UUID, model_code: str) -> AIProvider:
+        provider = self.get(provider_id)
+        provider.active_model = model_code
+        self._event(provider_id, "model.selected", f"active model set to {model_code}")
+        self.db.flush()
+        return provider
+
+    def set_priority(self, provider_id: uuid.UUID, priority: int) -> AIProvider:
+        provider = self.get(provider_id)
+        provider.priority = priority
+        self._event(provider_id, "failover.priority", f"priority set to {priority}")
+        self.db.flush()
+        return provider
+
+    # -- secrets + connection testing --------------------------------------
+
+    def set_secret(self, provider_id: uuid.UUID, value: str, key_name: str = "api_key") -> None:
+        self.get(provider_id)  # validate existence
+        self.secrets.set_secret(provider_id, value, key_name=key_name)
+
+    def _event(self, provider_id, event_type: str, detail: str, severity: str = "info") -> None:
+        self.db.add(
+            ProviderEvent(
+                provider_id=provider_id,
+                event_type=event_type,
+                actor=self.actor,
+                detail=detail,
+                severity=severity,
+            )
+        )
+
+    def test_connection(self, provider_id: uuid.UUID) -> dict:
+        p = self.get(provider_id)
+        try:
+            inst = self.instance_for(p)
+            result = inst.test_connection()
+        except Exception as exc:  # pragma: no cover - defensive
+            result = {"ok": False, "status": "unavailable", "detail": str(exc)}
+        self.db.add(
+            ProviderHealthRecord(
+                provider_id=p.id,
+                status=result.get("status", "unavailable"),
+                detail=result.get("detail"),
+            )
+        )
+        self._event(
+            p.id,
+            "connection.tested",
+            f"{result.get('status')} — {result.get('detail', '')[:120]}",
+        )
+        self.db.flush()
+        return {"provider": p.name, **result}
 
     # -- settings ----------------------------------------------------------
 
     def set_enabled(self, provider_id: uuid.UUID, enabled: bool) -> AIProvider:
         p = self.get(provider_id)
         p.enabled = enabled
+        self._event(p.id, "provider.enabled" if enabled else "provider.disabled", p.name)
         self.db.flush()
         return p
 
@@ -86,6 +211,7 @@ class ProviderService:
             raise ValidationError("Enable the provider before making it the default")
         for other in self.list_providers():
             other.is_default = other.id == p.id
+        self._event(p.id, "provider.default", f"{p.name} set as default")
         self.db.flush()
         return p
 
@@ -140,8 +266,21 @@ class ProviderService:
 
     # -- factory + health --------------------------------------------------
 
+    def runtime_config(self, provider: AIProvider) -> dict:
+        """Assemble the config passed to the Provider Layer at execution time.
+
+        Plain settings (base_url/model/timeout) + decrypted secrets + the active
+        model. Secrets are decrypted here and handed only to the provider adapter.
+        """
+        cfg = dict(self.config_dict(provider))
+        cfg.update(self.secrets.secrets_for(provider.id))
+        if provider.active_model:
+            cfg.setdefault("model", provider.active_model)
+        cfg.setdefault("timeout", get_settings().provider_http_timeout)
+        return cfg
+
     def instance_for(self, provider: AIProvider):
-        return ProviderFactory.create(provider.name, self.config_dict(provider))
+        return ProviderFactory.create(provider.name, self.runtime_config(provider))
 
     def check_health(self) -> list[dict]:
         results = []

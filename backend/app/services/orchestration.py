@@ -10,6 +10,7 @@ Abstraction Layer (via ProviderService / ProviderFactory).
 
 from __future__ import annotations
 
+import time
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
@@ -33,15 +34,33 @@ from app.models.orchestration import (
 )
 from app.models.work import Project, ProjectSprint, WorkItem
 from app.providers import ExecutionRequest, Message, ProviderError
+from app.providers.base import RateLimitError
+from app.services.budget_service import BudgetService
 from app.services.knowledge_search import RetrievalService
+from app.services.provider_platform import CostEngine, FailoverService, MetricsService
 from app.services.providers_service import ProviderService
 
 PROMPT_VERSION = "v1"
 MAX_ATTEMPTS = 2
+# Exponential backoff base (seconds) for rate-limit retries. Configurable; the
+# default keeps tests fast while the algorithm is fully exercised.
+RETRY_BACKOFF_BASE = 0.0
 
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+# In-process registry of run ids the founder has asked to cancel mid-stream.
+_CANCELLED: set[str] = set()
+
+
+def _is_cancelled(run_id) -> bool:
+    key = str(run_id)
+    if key in _CANCELLED:
+        _CANCELLED.discard(key)
+        return True
+    return False
 
 
 # --- Context builder ----------------------------------------------------
@@ -234,10 +253,14 @@ class OrchestrationService:
     def __init__(self, db: Session, actor: str = "System"):
         self.db = db
         self.actor = actor
-        self.providers = ProviderService(db)
+        self.providers = ProviderService(db, actor=actor)
         self.context_builder = ContextBuilder(db)
         self.prompt_builder = PromptBuilder()
         self.memory = MemoryService(db)
+        self.budget = BudgetService(db)
+        self.cost_engine = CostEngine(db)
+        self.metrics = MetricsService(db, actor=actor)
+        self.failover = FailoverService(db)
 
     def _emp_names(self) -> dict:
         return {e.id: e.name for e in self.db.scalars(select(AIEmployee)).all()}
@@ -294,6 +317,41 @@ class OrchestrationService:
         ).all()
         return (max(rows) + 1) if rows else 0
 
+    def _execute_with_retry(self, run, candidate, request):
+        """Try one provider with rate-limit-aware retry/backoff.
+
+        Returns (result | None, last_error). A rate-limit error backs off and
+        retries the SAME provider; any other provider error returns immediately so
+        the caller can fail over to the next provider in the chain.
+        """
+        last_error = None
+        for attempt in range(1, MAX_ATTEMPTS + 1):
+            try:
+                provider = self.providers.instance_for(candidate)
+                result = provider.execute(request)
+                self.db.add(RetryHistory(run_id=run.id, attempt=attempt, status="succeeded"))
+                self.metrics.record_latency(candidate.id, result.latency_ms, run_id=run.id)
+                return result, None
+            except RateLimitError as exc:
+                last_error = str(exc)
+                self.db.add(
+                    RetryHistory(
+                        run_id=run.id, attempt=attempt, status="rate_limited", error=last_error
+                    )
+                )
+                self.metrics.record_event(candidate.id, "rate_limited", last_error, "warning")
+                delay = exc.retry_after or (RETRY_BACKOFF_BASE * (2 ** (attempt - 1)))
+                if delay and delay > 0:
+                    time.sleep(min(delay, 30.0))
+                continue
+            except ProviderError as exc:
+                last_error = str(exc)
+                self.db.add(
+                    RetryHistory(run_id=run.id, attempt=attempt, status="failed", error=last_error)
+                )
+                return None, last_error
+        return None, last_error
+
     def run_stage(
         self,
         employee_id: uuid.UUID,
@@ -345,28 +403,62 @@ class OrchestrationService:
 
         request = ExecutionRequest(
             messages=messages,
-            model=provider_row.default_model,
+            model=provider_row.active_model or provider_row.default_model,
             metadata={
                 "role": context["employee"]["role"],
                 "task": (context.get("task") or {}).get("title", "the assigned task"),
             },
         )
 
-        result = None
-        last_error = None
-        for attempt in range(1, MAX_ATTEMPTS + 1):
-            try:
-                provider = self.providers.instance_for(provider_row)
-                result = provider.execute(request)
-                self.db.add(RetryHistory(run_id=run.id, attempt=attempt, status="succeeded"))
-                break
-            except ProviderError as exc:
-                last_error = str(exc)
-                self.db.add(
-                    RetryHistory(run_id=run.id, attempt=attempt, status="failed", error=last_error)
-                )
+        # Budget gate — checked BEFORE any provider is contacted.
+        est_tokens = sum(len(m.content) // 4 for m in messages)
+        try:
+            est_cost = self.providers.instance_for(provider_row).estimate_cost(
+                est_tokens, est_tokens // 2
+            )
+        except Exception:  # pragma: no cover - estimation is best-effort
+            est_cost = 0.0
+        decision = self.budget.check(estimated_cost=est_cost, estimated_tokens=est_tokens)
+        if not decision.allowed:
+            run.status = RunStatus.FAILED
+            run.error = f"Budget limit: {decision.reason}"
+            run.completed_at = _now()
+            self.metrics.record_event(
+                provider_row.id, "budget.blocked", decision.reason or "budget exceeded", "warning"
+            )
+            self.metrics.notify_founder(
+                provider_row.id, f"Execution blocked by budget: {decision.reason}"
+            )
+            self.db.flush()
+            return self.serialize_run(run)
 
-        # Provider health record.
+        # Failover chain: primary first, then other enabled providers by priority.
+        # An explicitly-requested provider is honored strictly (no silent failover);
+        # only auto-resolved (role/default) selections fail over.
+        chain = [provider_row] if provider_name else self.failover.chain(provider_row)
+        result = None
+        executed_row = provider_row
+        last_error = None
+        for idx, candidate in enumerate(chain):
+            result, last_error = self._execute_with_retry(run, candidate, request)
+            if result is not None:
+                executed_row = candidate
+                if idx > 0:
+                    # Failed over from the primary — audit + notify the founder.
+                    self.metrics.record_event(
+                        candidate.id,
+                        "failover.switched",
+                        f"failed over from {provider_row.name} to {candidate.name}",
+                        "warning",
+                    )
+                    self.metrics.notify_founder(
+                        provider_row.id,
+                        f"Provider '{provider_row.name}' failed; failed over to '{candidate.name}'.",
+                    )
+                break
+            self.metrics.record_error(candidate.id, last_error or "execution failed", run_id=run.id)
+
+        # Provider health record for the attempted primary.
         try:
             h = self.providers.instance_for(provider_row).health()
             self.db.add(
@@ -379,10 +471,16 @@ class OrchestrationService:
             run.status = RunStatus.FAILED
             run.error = last_error
             run.completed_at = _now()
+            self.metrics.notify_founder(
+                provider_row.id, f"Execution failed on all providers: {last_error}"
+            )
             self.db.flush()
             return self.serialize_run(run)
 
         # Success — persist output, message, metrics, usage, cost.
+        provider_row = executed_row
+        run.provider_id = executed_row.id
+        run.model = result.model
         run.status = RunStatus.COMPLETED
         run.output = result.output
         run.completed_at = _now()
@@ -424,8 +522,176 @@ class OrchestrationService:
                 currency=result.currency,
             )
         )
+        # Provider Platform: dimensioned usage + billing rollup (Sprint 11).
+        self.cost_engine.record(
+            provider_row,
+            result,
+            run_id=run.id,
+            ai_employee_id=employee.id,
+            project_id=work_item.project_id if work_item else None,
+        )
         self.db.flush()
         return self.serialize_run(run)
+
+    def stream_stage(
+        self,
+        employee_id: uuid.UUID,
+        work_item_id: uuid.UUID | None = None,
+        provider_name: str | None = None,
+    ):
+        """Yield (event_type, payload) tuples while streaming a live execution.
+
+        Events: 'start' (run/provider/model), 'token' (partial text), 'done'
+        (final run), 'error'. Persists the run, message, metrics, usage, and cost
+        on completion — identical bookkeeping to run_stage.
+        """
+        employee = self.db.get(AIEmployee, employee_id)
+        if employee is None:
+            yield ("error", {"error": f"AI employee {employee_id} not found"})
+            return
+        work_item = self.db.get(WorkItem, work_item_id) if work_item_id else None
+        if provider_name:
+            provider_row = self.providers.get_by_name(provider_name)
+            if provider_row is None:
+                yield ("error", {"error": f"Unknown provider '{provider_name}'"})
+                return
+        else:
+            provider_row = self.providers.provider_for_employee(employee)
+
+        thread = self._thread_for(employee, work_item, provider_row.id)
+        context = self.context_builder.build(employee, work_item)
+        prior = [
+            Message(role=m.role.value if hasattr(m.role, "value") else m.role, content=m.content)
+            for m in self.memory.short_term(thread.id)
+        ]
+        messages, version = self.prompt_builder.build(context, prior)
+        run = ExecutionRun(
+            thread_id=thread.id,
+            ai_employee_id=employee.id,
+            work_item_id=work_item.id if work_item else None,
+            provider_id=provider_row.id,
+            prompt_version=version,
+            model=provider_row.active_model or provider_row.default_model,
+            status=RunStatus.RUNNING,
+            input_summary=(context.get("task") or {}).get("title") or "General duties",
+            started_at=_now(),
+        )
+        self.db.add(run)
+        self.db.flush()
+        seq = self._next_seq(thread.id)
+        for m in messages:
+            self.db.add(
+                ExecutionMessage(
+                    thread_id=thread.id, run_id=run.id, role=m.role, content=m.content, sequence=seq
+                )
+            )
+            seq += 1
+        self.db.flush()
+
+        request = ExecutionRequest(
+            messages=messages,
+            model=provider_row.active_model or provider_row.default_model,
+            metadata={
+                "role": context["employee"]["role"],
+                "task": (context.get("task") or {}).get("title", "the assigned task"),
+            },
+        )
+        yield (
+            "start",
+            {
+                "run_id": str(run.id),
+                "provider": provider_row.name,
+                "model": run.model,
+                "thread_id": str(thread.id),
+            },
+        )
+
+        chunks: list[str] = []
+        started = _now()
+        try:
+            provider = self.providers.instance_for(provider_row)
+            for token in provider.stream(request):
+                if _is_cancelled(run.id):
+                    run.status = RunStatus.CANCELLED
+                    run.completed_at = _now()
+                    self.db.flush()
+                    yield ("done", {**self.serialize_run(run), "cancelled": True})
+                    return
+                chunks.append(token)
+                yield ("token", {"text": token})
+        except ProviderError as exc:
+            run.status = RunStatus.FAILED
+            run.error = str(exc)
+            run.completed_at = _now()
+            self.metrics.record_error(provider_row.id, str(exc), run_id=run.id)
+            self.db.flush()
+            yield ("error", {"error": str(exc), **self.serialize_run(run)})
+            return
+
+        output = "".join(chunks)
+        prompt_tokens = sum(len(m.content) // 4 for m in messages) or 1
+        completion_tokens = max(1, len(output) // 4)
+        latency_ms = int((_now() - started).total_seconds() * 1000)
+        run.status = RunStatus.COMPLETED
+        run.output = output
+        run.completed_at = _now()
+        run.duration_ms = latency_ms
+        self.db.add(
+            ExecutionMessage(
+                thread_id=thread.id,
+                run_id=run.id,
+                role=MessageRole.ASSISTANT,
+                content=output,
+                sequence=seq,
+            )
+        )
+        inst = self.providers.instance_for(provider_row)
+        cost = inst.estimate_cost(prompt_tokens, completion_tokens)
+        self.db.add(
+            ExecutionMetric(
+                run_id=run.id,
+                latency_ms=latency_ms,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=prompt_tokens + completion_tokens,
+            )
+        )
+        self.db.add(
+            TokenUsage(
+                run_id=run.id,
+                provider_id=provider_row.id,
+                ai_employee_id=employee.id,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=prompt_tokens + completion_tokens,
+            )
+        )
+        from app.providers.base import ExecutionResult as _ER
+
+        self.cost_engine.record(
+            provider_row,
+            _ER(
+                output=output,
+                provider=provider_row.name,
+                model=run.model or "",
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=prompt_tokens + completion_tokens,
+                cost=cost,
+                currency="USD",
+                latency_ms=latency_ms,
+            ),
+            run_id=run.id,
+            ai_employee_id=employee.id,
+            project_id=work_item.project_id if work_item else None,
+        )
+        self.metrics.record_latency(provider_row.id, latency_ms, run_id=run.id)
+        self.db.flush()
+        yield ("done", self.serialize_run(run))
+
+    def cancel_run(self, run_id: uuid.UUID) -> bool:
+        _CANCELLED.add(str(run_id))
+        return True
 
     def run_workflow(self, work_item_id: uuid.UUID, provider_name: str | None = None) -> list[dict]:
         """Run a stage for each handoff recipient in sequence (persists each)."""
