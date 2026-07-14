@@ -15,7 +15,9 @@ from app.api.v1 import (
     execution,
     health,
     libraries,
+    orchestration,
     projects,
+    providers,
     sprints,
     tasks,
     work_dashboard,
@@ -38,3 +40,5 @@ api_router.include_router(assignments.router)
 api_router.include_router(work_dashboard.router)
 api_router.include_router(execution.router)
 api_router.include_router(libraries.router)
+api_router.include_router(providers.router)
+api_router.include_router(orchestration.router)

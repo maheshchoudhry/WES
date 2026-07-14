@@ -23,6 +23,18 @@ from app.models.execution import (
     PromptTemplate,
     ReviewItem,
 )
+from app.models.orchestration import (
+    AIProvider,
+    ConversationThread,
+    CostTracking,
+    ExecutionMessage,
+    ExecutionMetric,
+    ExecutionRun,
+    ProviderConfig,
+    ProviderHealthRecord,
+    RetryHistory,
+    TokenUsage,
+)
 from app.models.work import (
     ActivityLog,
     Assignment,
@@ -64,4 +76,14 @@ __all__ = [
     "ReviewItem",
     "Handoff",
     "ExecutionContext",
+    "AIProvider",
+    "ProviderConfig",
+    "ConversationThread",
+    "ExecutionRun",
+    "ExecutionMessage",
+    "ExecutionMetric",
+    "TokenUsage",
+    "CostTracking",
+    "ProviderHealthRecord",
+    "RetryHistory",
 ]

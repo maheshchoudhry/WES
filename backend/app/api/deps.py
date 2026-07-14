@@ -128,7 +128,23 @@ def get_work_analytics_service(db: Session = Depends(get_db)):
     return WorkAnalyticsService(db)
 
 
+def get_orchestration_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.orchestration import OrchestrationService
+
+    role = user.role.value if hasattr(user.role, "value") else user.role
+    return OrchestrationService(db, actor=f"{user.full_name} ({role})")
+
+
 def get_execution_service(db: Session = Depends(get_db)):
     from app.services.execution import ExecutionService
 
     return ExecutionService(db)
+
+
+def get_provider_service(db: Session = Depends(get_db)):
+    from app.services.providers_service import ProviderService
+
+    return ProviderService(db)

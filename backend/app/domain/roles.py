@@ -39,6 +39,9 @@ class Permission(str, Enum):
     # Execution Engine (Sprint 08)
     EXEC_READ = "exec:read"
     EXEC_WRITE = "exec:write"  # queue advance, reviews, handoffs, library authoring
+    # Orchestration Engine (Sprint 09)
+    ORCH_READ = "orch:read"
+    ORCH_WRITE = "orch:write"  # run pipeline, provider settings (Founder only)
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -52,6 +55,7 @@ _READS = {
     Permission.AI_READ,
     Permission.WORK_READ,
     Permission.EXEC_READ,
+    Permission.ORCH_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
