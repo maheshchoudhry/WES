@@ -15,6 +15,7 @@ framework) — it documents the software as built.
 | Sprint 07 | [AI Work Management](./work-management.md) | Implemented |
 | Sprint 08 | [AI Execution Engine](./execution-engine.md) | Implemented |
 | Sprint 09 | [AI Orchestration & Provider Abstraction](./orchestration-engine.md) | Implemented |
+| Sprint 10 | [Organizational Knowledge Engine](./knowledge-engine.md) | Implemented |
 
 ## Contents
 
@@ -25,6 +26,7 @@ framework) — it documents the software as built.
 - [AI Work Management](./work-management.md) — projects, sprints, tasks, Kanban, assignments
 - [AI Execution Engine](./execution-engine.md) — workspaces, queue, libraries, handoffs
 - [AI Orchestration & Provider Abstraction](./orchestration-engine.md) — pipeline, providers, conversation, memory
+- [Organizational Knowledge Engine](./knowledge-engine.md) — documents, knowledge graph, search, AI retrieval
 - [API Reference](./api.md) — every REST endpoint, request/response shapes, error codes
 - [Setup Guide](./setup.md) — run locally and with Docker
 
