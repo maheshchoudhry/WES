@@ -165,6 +165,28 @@ def exec_seeded(SessionFactory):
 
 
 @pytest.fixture
+def orch_seeded(SessionFactory):
+    """Seed AI org + work + execution + orchestration (providers, sample run)."""
+    from app.db.seed_ai import seed_ai
+    from app.db.seed_execution import seed_execution
+    from app.db.seed_orchestration import seed_orchestration
+    from app.db.seed_work import seed_work
+
+    db = SessionFactory()
+    try:
+        seed_ai(db)
+        db.flush()
+        seed_work(db)
+        db.flush()
+        seed_execution(db)
+        db.flush()
+        seed_orchestration(db)
+        db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
 def company(client) -> dict:
     """A persisted company, returned as its API representation."""
     resp = client.post(
