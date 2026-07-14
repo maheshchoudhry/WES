@@ -11,6 +11,8 @@ import os
 # their own isolated in-memory schema and must not touch the configured database.
 os.environ["WES_AUTO_MIGRATE"] = "false"
 os.environ["WES_SEED_ON_START"] = "false"
+# Isolate autonomous-development git sandboxes to a temp dir for tests.
+os.environ.setdefault("WES_DEV_WORKSPACE_DIR", "/tmp/wes-dev-test-workspaces")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -230,6 +232,41 @@ def repo_seeded(SessionFactory):
 
         repo = RepositoryService(db).register(
             "WES Backend Test", os.path.abspath("app/providers"), slug="wes-test"
+        )
+        db.flush()
+        IndexerService(db).scan(repo.id)
+        db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
+def dev_seeded(SessionFactory):
+    """Seed AI org + work + orchestration + knowledge + a scanned repository so
+    the autonomous development workflow has full context to plan against."""
+    import os
+
+    from app.db.seed_ai import seed_ai
+    from app.db.seed_execution import seed_execution
+    from app.db.seed_knowledge import seed_knowledge
+    from app.db.seed_orchestration import seed_orchestration
+    from app.db.seed_work import seed_work
+    from app.services.repository_service import IndexerService, RepositoryService
+
+    db = SessionFactory()
+    try:
+        seed_ai(db)
+        db.flush()
+        seed_work(db)
+        db.flush()
+        seed_execution(db)
+        db.flush()
+        seed_orchestration(db)
+        db.flush()
+        seed_knowledge(db)
+        db.flush()
+        repo = RepositoryService(db).register(
+            "WES Backend Test", os.path.abspath("app/providers"), slug="wes-dev-test"
         )
         db.flush()
         IndexerService(db).scan(repo.id)
