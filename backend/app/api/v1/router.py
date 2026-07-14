@@ -20,6 +20,7 @@ from app.api.v1 import (
     orchestration,
     projects,
     providers,
+    quality,
     repository,
     sprints,
     tasks,
@@ -48,3 +49,4 @@ api_router.include_router(orchestration.router)
 api_router.include_router(knowledge.router)
 api_router.include_router(repository.router)
 api_router.include_router(development.router)
+api_router.include_router(quality.router)

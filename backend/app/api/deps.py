@@ -345,3 +345,15 @@ def get_approval_dev_service(
     from app.services.dev_review import ApprovalService
 
     return ApprovalService(db, actor=user.full_name)
+
+
+# --- Quality Gate service providers (Sprint 14) ---------------------------
+
+
+def get_quality_gate_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.quality_gate_service import QualityGateService
+
+    return QualityGateService(db, actor=_actor(user))

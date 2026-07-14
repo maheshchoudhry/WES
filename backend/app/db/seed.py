@@ -21,6 +21,7 @@ from app.db.seed_ai import seed_ai
 from app.db.seed_execution import seed_execution
 from app.db.seed_knowledge import seed_knowledge
 from app.db.seed_orchestration import seed_orchestration
+from app.db.seed_quality import seed_quality
 from app.db.seed_repository import seed_repository
 from app.db.seed_work import seed_work
 from app.domain.enums import AuthorityLevel, EmployeeStatus, EntityStatus
@@ -211,6 +212,8 @@ def seed(db: Session) -> Company | None:
         seed_knowledge(db)
         db.flush()
         seed_repository(db)
+        db.flush()
+        seed_quality(db)
         db.commit()
         return None
 
@@ -265,6 +268,8 @@ def seed(db: Session) -> Company | None:
     seed_knowledge(db)
     db.flush()
     seed_repository(db)
+    db.flush()
+    seed_quality(db)
     db.commit()
     return company
 

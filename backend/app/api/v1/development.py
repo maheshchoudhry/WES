@@ -41,6 +41,7 @@ class RunIn(BaseModel):
 class ApprovalIn(BaseModel):
     decision: ApprovalDecision
     notes: str | None = None
+    override: bool = False  # Founder override of a failing quality gate
 
 
 @router.get("/tasks", dependencies=[_read])
@@ -100,7 +101,7 @@ def approve(
     approval=Depends(get_approval_dev_service),
     service=Depends(get_development_service),
 ) -> dict:
-    approval.decide(task_id, payload.decision, payload.notes)
+    approval.decide(task_id, payload.decision, payload.notes, override=payload.override)
     return {"data": service.get_task(task_id)}
 
 
