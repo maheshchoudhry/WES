@@ -49,6 +49,10 @@ class Permission(str, Enum):
     # Repository Intelligence Engine (Sprint 12)
     REPO_READ = "repo:read"
     REPO_WRITE = "repo:write"  # register / scan repositories (Founder only)
+    # Autonomous Development Engine (Sprint 13)
+    DEV_READ = "dev:read"
+    DEV_EXECUTE = "dev:execute"  # start / run development tasks (Founder + Director)
+    DEV_APPROVE = "dev:approve"  # approve / reject pull requests (Founder only)
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -65,6 +69,7 @@ _READS = {
     Permission.ORCH_READ,
     Permission.KNOWLEDGE_READ,
     Permission.REPO_READ,
+    Permission.DEV_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
@@ -81,6 +86,8 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
         # Knowledge: authors documents and approves reviews.
         Permission.KNOWLEDGE_WRITE,
         Permission.KNOWLEDGE_APPROVE,
+        # Development: may start/monitor autonomous tasks (approval is Founder-only).
+        Permission.DEV_EXECUTE,
     },
     # Department management: manages employees, AI org, department work, execution.
     Role.DEPARTMENT_HEAD: _READS

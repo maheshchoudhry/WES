@@ -64,6 +64,12 @@ class Settings(BaseSettings):
     # Default HTTP timeout (seconds) for live provider API calls.
     provider_http_timeout: float = 60.0
 
+    # --- Autonomous Development Engine (Sprint 13) ---
+    # Base directory for per-task git sandboxes. Every autonomous implementation
+    # runs in a real, isolated git repository UNDER this path — never the WES,
+    # WORLD, or Blueprint repositories. Defaults to a temp location.
+    dev_workspace_dir: str = "/tmp/wes-dev-workspaces"
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

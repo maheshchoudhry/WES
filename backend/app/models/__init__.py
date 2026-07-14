@@ -11,6 +11,18 @@ from app.models.ai import (
 from app.models.base import Base
 from app.models.company import Company
 from app.models.department import Department
+from app.models.development import (
+    ApprovalHistory,
+    CodeReview,
+    DevelopmentSession,
+    DevelopmentTask,
+    GeneratedChange,
+    ImplementationMetrics,
+    ImplementationPlan,
+    PullRequest,
+    ReviewComment,
+    TestRun,
+)
 from app.models.employee import Employee
 from app.models.execution import (
     SOP,
@@ -162,4 +174,14 @@ __all__ = [
     "RepositoryMetrics",
     "RepositoryIssue",
     "RepositoryTodo",
+    "DevelopmentTask",
+    "DevelopmentSession",
+    "ImplementationPlan",
+    "GeneratedChange",
+    "CodeReview",
+    "ReviewComment",
+    "TestRun",
+    "PullRequest",
+    "ApprovalHistory",
+    "ImplementationMetrics",
 ]
