@@ -1,8 +1,10 @@
-"""AI Orchestration endpoints: run pipeline, runs, threads, dashboards."""
+"""AI Orchestration endpoints: run pipeline, streaming, runs, threads, dashboards."""
 
+import json
 import uuid
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.api.deps import get_orchestration_service, require_permission
@@ -40,6 +42,28 @@ def run_stage(
             payload.ai_employee_id, payload.work_item_id, payload.provider_name
         )
     }
+
+
+@router.post("/orchestration/stream", dependencies=[_write])
+def stream_execution(
+    payload: RunStageIn, service: OrchestrationService = Depends(get_orchestration_service)
+) -> StreamingResponse:
+    """Stream a live execution as Server-Sent Events (partial tokens)."""
+
+    def event_stream():
+        for event_type, data in service.stream_stage(
+            payload.ai_employee_id, payload.work_item_id, payload.provider_name
+        ):
+            yield f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@router.post("/orchestration/runs/{run_id}/cancel", dependencies=[_write])
+def cancel_run(
+    run_id: uuid.UUID, service: OrchestrationService = Depends(get_orchestration_service)
+) -> dict:
+    return {"data": {"cancelled": service.cancel_run(run_id)}}
 
 
 @router.post("/orchestration/run-workflow", dependencies=[_write])

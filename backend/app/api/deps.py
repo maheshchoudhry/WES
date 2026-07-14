@@ -144,10 +144,49 @@ def get_execution_service(db: Session = Depends(get_db)):
     return ExecutionService(db)
 
 
-def get_provider_service(db: Session = Depends(get_db)):
+def get_provider_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
     from app.services.providers_service import ProviderService
 
-    return ProviderService(db)
+    return ProviderService(db, actor=_actor(user))
+
+
+def get_budget_service(db: Session = Depends(get_db)):
+    from app.services.budget_service import BudgetService
+
+    return BudgetService(db)
+
+
+def get_platform_dashboard(db: Session = Depends(get_db)):
+    from app.services.provider_platform import PlatformDashboard
+
+    return PlatformDashboard(db)
+
+
+def get_metrics_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.provider_platform import MetricsService
+
+    return MetricsService(db, actor=_actor(user))
+
+
+def get_cost_engine(db: Session = Depends(get_db)):
+    from app.services.provider_platform import CostEngine
+
+    return CostEngine(db)
+
+
+def get_health_monitor(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.provider_platform import HealthMonitor
+
+    return HealthMonitor(db, actor=_actor(user))
 
 
 # --- Knowledge Engine service providers (Sprint 10) -----------------------
