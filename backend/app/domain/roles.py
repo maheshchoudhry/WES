@@ -56,6 +56,10 @@ class Permission(str, Enum):
     # AI Review & Quality Gate Engine (Sprint 14)
     QUALITY_READ = "quality:read"
     QUALITY_REVIEW = "quality:review"  # run / re-run quality gates (Founder + Director)
+    # Enterprise DevOps Platform (Sprint 15)
+    DEVOPS_READ = "devops:read"
+    DEVOPS_EXECUTE = "devops:execute"  # run pipelines / build / deploy staging (Founder + Director)
+    DEVOPS_PRODUCTION = "devops:production"  # approve / deploy production + rollback (Founder only)
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -74,6 +78,7 @@ _READS = {
     Permission.REPO_READ,
     Permission.DEV_READ,
     Permission.QUALITY_READ,
+    Permission.DEVOPS_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
@@ -94,6 +99,9 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
         Permission.DEV_EXECUTE,
         # Quality: may run/re-run quality gates (Founder overrides approval).
         Permission.QUALITY_REVIEW,
+        # DevOps: may run pipelines + deploy to non-production (production is
+        # Founder-only).
+        Permission.DEVOPS_EXECUTE,
     },
     # Department management: manages employees, AI org, department work, execution.
     Role.DEPARTMENT_HEAD: _READS

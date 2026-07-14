@@ -15,6 +15,9 @@ bcrypt==4.2.1
 # Secret encryption for provider credentials (Sprint 11)
 cryptography==44.0.0
 
+# System monitoring for the DevOps platform (Sprint 15)
+psutil==7.0.0
+
 # Testing
 pytest==8.3.4
 httpx==0.28.1

@@ -70,6 +70,14 @@ class Settings(BaseSettings):
     # WORLD, or Blueprint repositories. Defaults to a temp location.
     dev_workspace_dir: str = "/tmp/wes-dev-workspaces"
 
+    # --- Enterprise DevOps Platform (Sprint 15) ---
+    # Base directory for build artifacts and local (real) deployments — never a
+    # real production host. Deployments extract the built artifact and verify it.
+    devops_workspace_dir: str = "/tmp/wes-devops"
+    # Whether the CI/CD pipeline runs REAL `docker build` steps (requires a Docker
+    # daemon). Off by default so the test suite stays fast; enabled in runtime.
+    devops_docker_builds: bool = False
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

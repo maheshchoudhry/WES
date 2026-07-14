@@ -23,6 +23,20 @@ from app.models.development import (
     ReviewComment,
     TestRun,
 )
+from app.models.devops import (
+    BuildRun,
+    DeploymentArtifact,
+    DeploymentRun,
+    DeploymentTarget,
+    EnvironmentProfile,
+    IncidentReport,
+    MonitoringEvent,
+    PipelineRun,
+    ReleaseNote,
+    ReleaseVersion,
+    RollbackHistory,
+    SystemHealth,
+)
 from app.models.employee import Employee
 from app.models.execution import (
     SOP,
@@ -206,4 +220,16 @@ __all__ = [
     "ComplianceFinding",
     "QualityMetrics",
     "ReleaseReadiness",
+    "EnvironmentProfile",
+    "DeploymentTarget",
+    "PipelineRun",
+    "BuildRun",
+    "ReleaseVersion",
+    "ReleaseNote",
+    "DeploymentArtifact",
+    "DeploymentRun",
+    "RollbackHistory",
+    "MonitoringEvent",
+    "SystemHealth",
+    "IncidentReport",
 ]
