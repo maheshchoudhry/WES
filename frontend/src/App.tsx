@@ -24,6 +24,12 @@ import { BudgetDashboard } from "./pages/orchestration/BudgetDashboard";
 import { ExecutionMonitor } from "./pages/orchestration/ExecutionMonitor";
 import { StreamingViewer } from "./pages/orchestration/StreamingViewer";
 import { ConnectionTester } from "./pages/orchestration/ConnectionTester";
+import { QualityGateDashboard } from "./pages/quality/QualityGateDashboard";
+import { SecurityDashboard } from "./pages/quality/SecurityDashboard";
+import { PerformanceDashboard as QualityPerformanceDashboard } from "./pages/quality/PerformanceDashboard";
+import { ReviewDashboard as QualityReviewDashboard } from "./pages/quality/ReviewDashboard";
+import { ReleaseReadinessDashboard } from "./pages/quality/ReleaseReadinessDashboard";
+import { RiskDashboard } from "./pages/quality/RiskDashboard";
 import { DevelopmentDashboard } from "./pages/development/DevelopmentDashboard";
 import { ImplementationViewer } from "./pages/development/ImplementationViewer";
 import { RepositoryChanges } from "./pages/development/RepositoryChanges";
@@ -139,6 +145,12 @@ export default function App() {
         <Route path="/development/timeline/:id" element={<TaskTimeline />} />
         <Route path="/development/pull-requests" element={<PullRequestCenter />} />
         <Route path="/development/approvals" element={<ApprovalCenter />} />
+        <Route path="/quality" element={<QualityGateDashboard />} />
+        <Route path="/quality/review" element={<QualityReviewDashboard />} />
+        <Route path="/quality/security" element={<SecurityDashboard />} />
+        <Route path="/quality/performance" element={<QualityPerformanceDashboard />} />
+        <Route path="/quality/release" element={<ReleaseReadinessDashboard />} />
+        <Route path="/quality/risk" element={<RiskDashboard />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>

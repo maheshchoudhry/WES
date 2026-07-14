@@ -77,6 +77,16 @@ const devNav = [
   { to: "/development/approvals", label: "Approval Center", end: false },
 ];
 
+// Quality Gate Engine (Sprint 14).
+const qualityNav = [
+  { to: "/quality", label: "Quality Gates", end: true },
+  { to: "/quality/review", label: "Review", end: false },
+  { to: "/quality/security", label: "Security", end: false },
+  { to: "/quality/performance", label: "Performance", end: false },
+  { to: "/quality/risk", label: "Risk Analysis", end: false },
+  { to: "/quality/release", label: "Release Readiness", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
 const reserved = ["Reports", "Settings"];
 
@@ -156,6 +166,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="nav-reserved">
           <div className="nav-reserved-label">Development</div>
           {devNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">Quality Gates</div>
+          {qualityNav.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end}>
               {l.label}
             </NavLink>

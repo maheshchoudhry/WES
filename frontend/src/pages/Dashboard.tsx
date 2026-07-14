@@ -7,6 +7,7 @@ import { knowledgeApi, type KnowledgeFounderDash } from "../api/knowledge";
 import { orchestrationApi, type OrchFounderDash } from "../api/orchestration";
 import { repositoryApi, type Repository } from "../api/repository";
 import { developmentApi, type DevFounderDash } from "../api/development";
+import { qualityApi, type QualityFounderDash } from "../api/quality";
 import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
   ActivityItem,
@@ -41,6 +42,7 @@ interface DashboardData {
   knowledge: KnowledgeFounderDash;
   repository: Repository | null;
   development: DevFounderDash;
+  quality: QualityFounderDash;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
@@ -57,6 +59,7 @@ async function loadDashboard(): Promise<DashboardData> {
     knowledge,
     repository,
     development,
+    quality,
   ] = await Promise.all([
     dashboardApi.stats(),
     dashboardApi.departments(),
@@ -70,6 +73,7 @@ async function loadDashboard(): Promise<DashboardData> {
     knowledgeApi.founderDashboard(),
     repositoryApi.list().then((r) => ({ data: r.data[0] ?? null })),
     developmentApi.founderDashboard(),
+    qualityApi.founderDashboard(),
   ]);
   return {
     stats: stats.data,
@@ -84,6 +88,7 @@ async function loadDashboard(): Promise<DashboardData> {
     knowledge: knowledge.data,
     repository: repository.data,
     development: development.data,
+    quality: quality.data,
   };
 }
 
@@ -107,6 +112,7 @@ export function Dashboard() {
     knowledge,
     repository,
     development,
+    quality,
   } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
@@ -249,6 +255,33 @@ export function Dashboard() {
                     {p.is_default ? " ★" : ""}
                   </span>
                 ))}
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* Quality gate summary */}
+          <div className="span-all">
+            <SectionCard
+              title="Quality Gates"
+              action={
+                <Link to="/quality" className="btn btn-sm">
+                  Quality
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="Approval-Eligible" value={quality.approval_eligible} accent="ok" />
+                <StatCard
+                  label="Blocked"
+                  value={quality.blocked}
+                  accent={quality.blocked > 0 ? "warn" : "ok"}
+                />
+                <StatCard
+                  label="Open Critical"
+                  value={quality.open_critical}
+                  accent={quality.open_critical > 0 ? "warn" : "ok"}
+                />
+                <StatCard label="Release Ready" value={quality.release_ready} accent="ok" />
               </div>
             </SectionCard>
           </div>
