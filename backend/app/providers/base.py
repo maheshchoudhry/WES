@@ -16,6 +16,18 @@ class ProviderError(Exception):
     """Raised when a provider cannot fulfil a request (e.g. not configured)."""
 
 
+class RateLimitError(ProviderError):
+    """Raised when a provider signals rate limiting (HTTP 429).
+
+    The orchestration layer treats this specially: back off and retry the same
+    provider before failing over to another.
+    """
+
+    def __init__(self, message: str, retry_after: float | None = None):
+        super().__init__(message)
+        self.retry_after = retry_after
+
+
 @dataclass
 class Message:
     role: str  # system | user | assistant | tool
@@ -32,6 +44,14 @@ class ExecutionRequest:
 
     def as_text(self) -> str:
         return "\n".join(f"{m.role}: {m.content}" for m in self.messages)
+
+    def system_text(self) -> str:
+        """Concatenated content of all system messages (for APIs with a system field)."""
+        return "\n".join(m.content for m in self.messages if m.role == "system")
+
+    def chat_messages(self, roles: tuple[str, ...] = ("user", "assistant", "tool")) -> list[dict]:
+        """Non-system messages as ``{role, content}`` dicts (OpenAI-style APIs)."""
+        return [{"role": m.role, "content": m.content} for m in self.messages if m.role in roles]
 
 
 @dataclass
@@ -77,6 +97,21 @@ class BaseProvider(ABC):
     @abstractmethod
     def health(self) -> ProviderHealth:
         """Report provider availability without performing real work."""
+
+    def test_connection(self) -> dict[str, Any]:
+        """Actively test connectivity; return a structured status.
+
+        Default derives from ``health()``; live providers override to make a real
+        probe request. Never raises — always returns a renderable dict.
+        """
+        h = self.health()
+        return {
+            "ok": h.status == "healthy",
+            "status": h.status,
+            "detail": h.detail,
+            "model": self.default_model,
+            "version": "n/a",
+        }
 
     # -- execution ---------------------------------------------------------
 

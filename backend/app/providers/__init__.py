@@ -12,6 +12,7 @@ from app.providers.base import (
     Message,
     ProviderError,
     ProviderHealth,
+    RateLimitError,
 )
 from app.providers.registry import PROVIDER_NAMES, ProviderFactory, ProviderRegistry
 
@@ -22,6 +23,7 @@ __all__ = [
     "Message",
     "ProviderHealth",
     "ProviderError",
+    "RateLimitError",
     "ProviderRegistry",
     "ProviderFactory",
     "PROVIDER_NAMES",

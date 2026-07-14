@@ -53,6 +53,17 @@ class Settings(BaseSettings):
     # Default password applied to seeded employees so they can log in locally.
     seed_default_password: str = "WesOs2026!"
 
+    # --- Provider Platform / secret management (Sprint 11) ---
+    # WES_SECRET_KEY encrypts provider credentials at rest. MUST be overridden in
+    # production. A per-install random key would rotate ciphertext on restart, so a
+    # stable default is used for local dev only.
+    secret_key: str = "dev-insecure-secret-key-change-in-production"
+    # Active environment profile — provider secrets are scoped to a profile so the
+    # same install can hold development / staging / production credentials.
+    active_environment: str = "development"
+    # Default HTTP timeout (seconds) for live provider API calls.
+    provider_http_timeout: float = 60.0
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

@@ -29,6 +29,16 @@ class MockProvider(BaseProvider):
     def health(self) -> ProviderHealth:
         return ProviderHealth(status="healthy", detail="Mock provider is always available.")
 
+    def test_connection(self) -> dict:
+        return {
+            "ok": True,
+            "status": "healthy",
+            "detail": "Mock provider is always reachable.",
+            "model": self.default_model,
+            "version": "mock",
+            "latency_ms": 1,
+        }
+
     def _respond(self, request: ExecutionRequest) -> str:
         role = request.metadata.get("role", "AI Employee")
         task = request.metadata.get("task", "the assigned task")
