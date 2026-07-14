@@ -19,6 +19,7 @@ from app.core.config import get_settings
 from app.core.database import SessionLocal
 from app.db.seed_ai import seed_ai
 from app.db.seed_execution import seed_execution
+from app.db.seed_knowledge import seed_knowledge
 from app.db.seed_orchestration import seed_orchestration
 from app.db.seed_work import seed_work
 from app.domain.enums import AuthorityLevel, EmployeeStatus, EntityStatus
@@ -205,6 +206,8 @@ def seed(db: Session) -> Company | None:
         seed_execution(db)
         db.flush()
         seed_orchestration(db)
+        db.flush()
+        seed_knowledge(db)
         db.commit()
         return None
 
@@ -255,6 +258,8 @@ def seed(db: Session) -> Company | None:
     seed_execution(db)
     db.flush()
     seed_orchestration(db)
+    db.flush()
+    seed_knowledge(db)
     db.commit()
     return company
 
