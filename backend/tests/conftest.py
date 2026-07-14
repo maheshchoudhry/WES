@@ -214,6 +214,31 @@ def knowledge_seeded(SessionFactory):
 
 
 @pytest.fixture
+def repo_seeded(SessionFactory):
+    """Register + scan the WES backend app package into the test DB."""
+    from app.db.seed_ai import seed_ai
+    from app.db.seed_work import seed_work
+    from app.services.repository_service import IndexerService, RepositoryService
+
+    db = SessionFactory()
+    try:
+        seed_ai(db)
+        db.flush()
+        seed_work(db)
+        db.flush()
+        import os
+
+        repo = RepositoryService(db).register(
+            "WES Backend Test", os.path.abspath("app/providers"), slug="wes-test"
+        )
+        db.flush()
+        IndexerService(db).scan(repo.id)
+        db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
 def company(client) -> dict:
     """A persisted company, returned as its API representation."""
     resp = client.post(
