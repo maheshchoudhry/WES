@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { aiApi } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
 import { executionApi } from "../api/execution";
+import { knowledgeApi } from "../api/knowledge";
 import { orchestrationApi } from "../api/orchestration";
 import { workApi } from "../api/work";
 import { Dashboard } from "../pages/Dashboard";
@@ -14,6 +15,7 @@ vi.mock("../api/ai");
 vi.mock("../api/work");
 vi.mock("../api/execution");
 vi.mock("../api/orchestration");
+vi.mock("../api/knowledge");
 
 const company = {
   id: "c1",
@@ -45,6 +47,27 @@ beforeEach(() => {
       token_usage: 486,
       estimated_cost: 0,
       avg_runtime_ms: 5,
+    },
+  } as never);
+  vi.mocked(knowledgeApi.founderDashboard).mockResolvedValue({
+    data: {
+      documents: 8,
+      categories: 12,
+      pending_reviews: 1,
+      approved_documents: 4,
+      knowledge_health: "healthy",
+      approved_coverage: 0.5,
+      recent_knowledge: [],
+      most_used: [],
+      statistics: {
+        total_documents: 8,
+        total_categories: 12,
+        total_adrs: 2,
+        total_views: 29,
+        retrievals: 3,
+        by_status: { approved: 4 },
+        by_type: { coding_standard: 1 },
+      },
     },
   } as never);
   vi.mocked(executionApi.founderDashboard).mockResolvedValue({

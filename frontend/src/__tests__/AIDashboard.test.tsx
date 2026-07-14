@@ -4,14 +4,35 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { aiApi } from "../api/ai";
 import { executionApi } from "../api/execution";
+import { knowledgeApi } from "../api/knowledge";
 import { workApi } from "../api/work";
 import { AIDashboard } from "../pages/ai/AIDashboard";
 
 vi.mock("../api/ai");
 vi.mock("../api/work");
 vi.mock("../api/execution");
+vi.mock("../api/knowledge");
 
 beforeEach(() => {
+  vi.mocked(knowledgeApi.aiDashboard).mockResolvedValue({
+    data: {
+      suggested_knowledge: [],
+      recent_knowledge: [],
+      architecture_references: [],
+      coding_standards: [
+        {
+          id: "k1",
+          code: "KB-0002",
+          title: "Backend Coding Standard",
+          doc_type: "coding_standard",
+          summary: null,
+        },
+      ],
+      sop_recommendations: [],
+      organization_memory: [],
+      related_documents: [],
+    },
+  } as never);
   vi.mocked(executionApi.aiDashboard).mockResolvedValue({
     data: {
       inbox: 8,
