@@ -24,6 +24,14 @@ import { BudgetDashboard } from "./pages/orchestration/BudgetDashboard";
 import { ExecutionMonitor } from "./pages/orchestration/ExecutionMonitor";
 import { StreamingViewer } from "./pages/orchestration/StreamingViewer";
 import { ConnectionTester } from "./pages/orchestration/ConnectionTester";
+import { RepositoryDashboard } from "./pages/repository/RepositoryDashboard";
+import { RepositoryExplorer } from "./pages/repository/RepositoryExplorer";
+import { ArchitectureExplorer } from "./pages/repository/ArchitectureExplorer";
+import { DependencyGraph } from "./pages/repository/DependencyGraph";
+import { SymbolBrowser } from "./pages/repository/SymbolBrowser";
+import { ImpactAnalysis } from "./pages/repository/ImpactAnalysis";
+import { CodeSearch } from "./pages/repository/CodeSearch";
+import { ModuleExplorer } from "./pages/repository/ModuleExplorer";
 import { AdvancedSearch } from "./pages/knowledge/AdvancedSearch";
 import { ArchitectureDecisions } from "./pages/knowledge/ArchitectureDecisions";
 import { Bookmarks } from "./pages/knowledge/Bookmarks";
@@ -109,6 +117,14 @@ export default function App() {
         <Route path="/knowledge/reviews" element={<ReviewCenter />} />
         <Route path="/knowledge/adrs" element={<ArchitectureDecisions />} />
         <Route path="/knowledge/search" element={<AdvancedSearch />} />
+        <Route path="/repository" element={<RepositoryDashboard />} />
+        <Route path="/repository/explorer" element={<RepositoryExplorer />} />
+        <Route path="/repository/architecture" element={<ArchitectureExplorer />} />
+        <Route path="/repository/dependencies" element={<DependencyGraph />} />
+        <Route path="/repository/symbols" element={<SymbolBrowser />} />
+        <Route path="/repository/impact" element={<ImpactAnalysis />} />
+        <Route path="/repository/search" element={<CodeSearch />} />
+        <Route path="/repository/modules" element={<ModuleExplorer />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>

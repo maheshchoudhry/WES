@@ -58,6 +58,18 @@ const knowledgeNav = [
   { to: "/knowledge/adrs", label: "Architecture Decisions", end: false },
 ];
 
+// Repository Intelligence (Sprint 12).
+const repoNav = [
+  { to: "/repository", label: "Repository", end: true },
+  { to: "/repository/explorer", label: "Explorer", end: false },
+  { to: "/repository/architecture", label: "Architecture", end: false },
+  { to: "/repository/dependencies", label: "Dependency Graph", end: false },
+  { to: "/repository/symbols", label: "Symbols", end: false },
+  { to: "/repository/search", label: "Code Search", end: false },
+  { to: "/repository/impact", label: "Impact Analysis", end: false },
+  { to: "/repository/modules", label: "Modules", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
 const reserved = ["Reports", "Settings"];
 
@@ -121,6 +133,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="nav-reserved">
           <div className="nav-reserved-label">Knowledge</div>
           {knowledgeNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">Repository</div>
+          {repoNav.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end}>
               {l.label}
             </NavLink>

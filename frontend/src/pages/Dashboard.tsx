@@ -5,6 +5,7 @@ import { dashboardApi } from "../api/dashboard";
 import { executionApi, type ExecFounderDash } from "../api/execution";
 import { knowledgeApi, type KnowledgeFounderDash } from "../api/knowledge";
 import { orchestrationApi, type OrchFounderDash } from "../api/orchestration";
+import { repositoryApi, type Repository } from "../api/repository";
 import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
   ActivityItem,
@@ -37,22 +38,35 @@ interface DashboardData {
   exec: ExecFounderDash;
   orch: OrchFounderDash;
   knowledge: KnowledgeFounderDash;
+  repository: Repository | null;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
-  const [stats, departments, employees, activity, health, ai, work, exec, orch, knowledge] =
-    await Promise.all([
-      dashboardApi.stats(),
-      dashboardApi.departments(),
-      dashboardApi.employees(),
-      dashboardApi.activity(8),
-      dashboardApi.health(),
-      aiApi.summary(),
-      workApi.founderSummary(),
-      executionApi.founderDashboard(),
-      orchestrationApi.founderDashboard(),
-      knowledgeApi.founderDashboard(),
-    ]);
+  const [
+    stats,
+    departments,
+    employees,
+    activity,
+    health,
+    ai,
+    work,
+    exec,
+    orch,
+    knowledge,
+    repository,
+  ] = await Promise.all([
+    dashboardApi.stats(),
+    dashboardApi.departments(),
+    dashboardApi.employees(),
+    dashboardApi.activity(8),
+    dashboardApi.health(),
+    aiApi.summary(),
+    workApi.founderSummary(),
+    executionApi.founderDashboard(),
+    orchestrationApi.founderDashboard(),
+    knowledgeApi.founderDashboard(),
+    repositoryApi.list().then((r) => ({ data: r.data[0] ?? null })),
+  ]);
   return {
     stats: stats.data,
     departments: departments.data,
@@ -64,6 +78,7 @@ async function loadDashboard(): Promise<DashboardData> {
     exec: exec.data,
     orch: orch.data,
     knowledge: knowledge.data,
+    repository: repository.data,
   };
 }
 
@@ -74,7 +89,19 @@ export function Dashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { stats, departments, employees, activity, health, ai, work, exec, orch, knowledge } = data;
+  const {
+    stats,
+    departments,
+    employees,
+    activity,
+    health,
+    ai,
+    work,
+    exec,
+    orch,
+    knowledge,
+    repository,
+  } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
     ai.organization_health === "healthy"
@@ -219,6 +246,32 @@ export function Dashboard() {
               </div>
             </SectionCard>
           </div>
+
+          {/* Repository intelligence summary */}
+          {repository && repository.metrics && (
+            <div className="span-all">
+              <SectionCard
+                title="Repository Intelligence"
+                action={
+                  <Link to="/repository" className="btn btn-sm">
+                    Repository
+                  </Link>
+                }
+              >
+                <div className="grid stats">
+                  <StatCard label="Files" value={repository.metrics.file_count} />
+                  <StatCard label="Symbols" value={repository.metrics.symbol_count} />
+                  <StatCard label="Routes" value={repository.metrics.route_count} />
+                  <StatCard
+                    label="Health"
+                    value={repository.metrics.health_score.toFixed(0)}
+                    accent={repository.metrics.health_score >= 60 ? "ok" : "warn"}
+                    hint={repository.primary_language ?? ""}
+                  />
+                </div>
+              </SectionCard>
+            </div>
+          )}
 
           {/* Knowledge summary */}
           <div className="span-all">
