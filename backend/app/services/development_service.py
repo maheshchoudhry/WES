@@ -58,6 +58,7 @@ _STAGE_ROLE = {
     DevStage.IMPLEMENTATION: "Backend Engineer",
     DevStage.TESTING: "QA Engineer",
     DevStage.REVIEW: "Chief Software Architect",
+    DevStage.QUALITY_GATE: "Quality & Security Engine",
     DevStage.DOCUMENTATION: "Technical Writer",
     DevStage.GIT: "DevOps Engineer",
     DevStage.PULL_REQUEST: "DevOps Engineer",
@@ -372,6 +373,21 @@ class DevelopmentService:
                 task, notes_change.content if notes_change else plan.summary
             )
             self._done(s, f"Knowledge document {doc_id} created")
+
+            # 6b. Quality gates (Sprint 14) — the final engineering validation before
+            # a pull request can reach Founder approval. Runs after documentation so
+            # the knowledge-base-update check sees the freshly written doc.
+            s = self._session(task, DevStage.QUALITY_GATE, seq)
+            seq += 1
+            from app.services.quality_gate_service import QualityGateService
+
+            gate = QualityGateService(self.db).evaluate(task.id)
+            self._done(
+                s,
+                f"Quality gate {gate.status.value if hasattr(gate.status,'value') else gate.status} — "
+                f"overall {gate.overall_score}, {gate.critical_count} critical, "
+                f"{'approval-eligible' if gate.approval_eligible else 'blocked'}",
+            )
 
             # 7. Pull request draft.
             s = self._session(task, DevStage.PULL_REQUEST, seq)

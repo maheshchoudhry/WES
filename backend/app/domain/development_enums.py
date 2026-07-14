@@ -30,6 +30,7 @@ class DevStage(str, Enum):
     IMPLEMENTATION = "implementation"
     TESTING = "testing"
     REVIEW = "review"
+    QUALITY_GATE = "quality_gate"
     DOCUMENTATION = "documentation"
     GIT = "git"
     PULL_REQUEST = "pull_request"

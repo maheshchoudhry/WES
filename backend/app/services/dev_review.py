@@ -333,14 +333,36 @@ class ApprovalService:
         self.actor = actor
 
     def decide(
-        self, task_id: uuid.UUID, decision: ApprovalDecision | str, notes: str | None = None
+        self,
+        task_id: uuid.UUID,
+        decision: ApprovalDecision | str,
+        notes: str | None = None,
+        *,
+        override: bool = False,
     ) -> ApprovalHistory:
-        from app.core.exceptions import NotFoundError
+        from app.core.exceptions import NotFoundError, ValidationError
 
         task = self.db.get(DevelopmentTask, task_id)
         if task is None:
             raise NotFoundError(f"Development task {task_id} not found")
         dec = decision.value if isinstance(decision, ApprovalDecision) else decision
+
+        # Quality gate enforcement (Sprint 14): no APPROVAL may proceed until the
+        # mandatory quality gates have been evaluated. A failing gate requires an
+        # explicit Founder override; rejection/changes-requested are always allowed.
+        if dec == ApprovalDecision.APPROVED.value:
+            from app.services.quality_gate_service import QualityGateService
+
+            gate = QualityGateService(self.db).gate_for_task(task_id)
+            if gate is None:
+                raise ValidationError(
+                    "Quality gates have not been evaluated for this task; cannot approve."
+                )
+            if not gate.approval_eligible and not override:
+                raise ValidationError(
+                    "Quality gates failed; approval requires an explicit Founder override."
+                )
+
         pr = self.db.scalar(select(PullRequest).where(PullRequest.task_id == task_id))
         record = ApprovalHistory(
             task_id=task_id,
