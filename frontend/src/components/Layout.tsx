@@ -70,6 +70,13 @@ const repoNav = [
   { to: "/repository/modules", label: "Modules", end: false },
 ];
 
+// Autonomous Development (Sprint 13).
+const devNav = [
+  { to: "/development", label: "Development", end: true },
+  { to: "/development/pull-requests", label: "Pull Requests", end: false },
+  { to: "/development/approvals", label: "Approval Center", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
 const reserved = ["Reports", "Settings"];
 
@@ -141,6 +148,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="nav-reserved">
           <div className="nav-reserved-label">Repository</div>
           {repoNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">Development</div>
+          {devNav.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end}>
               {l.label}
             </NavLink>

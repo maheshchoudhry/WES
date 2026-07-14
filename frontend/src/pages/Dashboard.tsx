@@ -6,6 +6,7 @@ import { executionApi, type ExecFounderDash } from "../api/execution";
 import { knowledgeApi, type KnowledgeFounderDash } from "../api/knowledge";
 import { orchestrationApi, type OrchFounderDash } from "../api/orchestration";
 import { repositoryApi, type Repository } from "../api/repository";
+import { developmentApi, type DevFounderDash } from "../api/development";
 import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
   ActivityItem,
@@ -39,6 +40,7 @@ interface DashboardData {
   orch: OrchFounderDash;
   knowledge: KnowledgeFounderDash;
   repository: Repository | null;
+  development: DevFounderDash;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
@@ -54,6 +56,7 @@ async function loadDashboard(): Promise<DashboardData> {
     orch,
     knowledge,
     repository,
+    development,
   ] = await Promise.all([
     dashboardApi.stats(),
     dashboardApi.departments(),
@@ -66,6 +69,7 @@ async function loadDashboard(): Promise<DashboardData> {
     orchestrationApi.founderDashboard(),
     knowledgeApi.founderDashboard(),
     repositoryApi.list().then((r) => ({ data: r.data[0] ?? null })),
+    developmentApi.founderDashboard(),
   ]);
   return {
     stats: stats.data,
@@ -79,6 +83,7 @@ async function loadDashboard(): Promise<DashboardData> {
     orch: orch.data,
     knowledge: knowledge.data,
     repository: repository.data,
+    development: development.data,
   };
 }
 
@@ -101,6 +106,7 @@ export function Dashboard() {
     orch,
     knowledge,
     repository,
+    development,
   } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
@@ -243,6 +249,29 @@ export function Dashboard() {
                     {p.is_default ? " ★" : ""}
                   </span>
                 ))}
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* Autonomous development summary */}
+          <div className="span-all">
+            <SectionCard
+              title="Autonomous Development"
+              action={
+                <Link to="/development" className="btn btn-sm">
+                  Development
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="Running" value={development.running} />
+                <StatCard label="Completed" value={development.completed} accent="ok" />
+                <StatCard
+                  label="Pending Approvals"
+                  value={development.pending_approvals}
+                  accent={development.pending_approvals > 0 ? "warn" : "ok"}
+                />
+                <StatCard label="Open PRs" value={development.open_pull_requests} />
               </div>
             </SectionCard>
           </div>

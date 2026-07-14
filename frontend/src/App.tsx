@@ -24,6 +24,13 @@ import { BudgetDashboard } from "./pages/orchestration/BudgetDashboard";
 import { ExecutionMonitor } from "./pages/orchestration/ExecutionMonitor";
 import { StreamingViewer } from "./pages/orchestration/StreamingViewer";
 import { ConnectionTester } from "./pages/orchestration/ConnectionTester";
+import { DevelopmentDashboard } from "./pages/development/DevelopmentDashboard";
+import { ImplementationViewer } from "./pages/development/ImplementationViewer";
+import { RepositoryChanges } from "./pages/development/RepositoryChanges";
+import { ReviewCenter as DevReviewCenter } from "./pages/development/ReviewCenter";
+import { TaskTimeline } from "./pages/development/TaskTimeline";
+import { PullRequestCenter } from "./pages/development/PullRequestCenter";
+import { ApprovalCenter } from "./pages/development/ApprovalCenter";
 import { RepositoryDashboard } from "./pages/repository/RepositoryDashboard";
 import { RepositoryExplorer } from "./pages/repository/RepositoryExplorer";
 import { ArchitectureExplorer } from "./pages/repository/ArchitectureExplorer";
@@ -125,6 +132,13 @@ export default function App() {
         <Route path="/repository/impact" element={<ImpactAnalysis />} />
         <Route path="/repository/search" element={<CodeSearch />} />
         <Route path="/repository/modules" element={<ModuleExplorer />} />
+        <Route path="/development" element={<DevelopmentDashboard />} />
+        <Route path="/development/tasks/:id" element={<ImplementationViewer />} />
+        <Route path="/development/changes/:id" element={<RepositoryChanges />} />
+        <Route path="/development/review/:id" element={<DevReviewCenter />} />
+        <Route path="/development/timeline/:id" element={<TaskTimeline />} />
+        <Route path="/development/pull-requests" element={<PullRequestCenter />} />
+        <Route path="/development/approvals" element={<ApprovalCenter />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>
