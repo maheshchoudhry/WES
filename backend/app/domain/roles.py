@@ -53,6 +53,9 @@ class Permission(str, Enum):
     DEV_READ = "dev:read"
     DEV_EXECUTE = "dev:execute"  # start / run development tasks (Founder + Director)
     DEV_APPROVE = "dev:approve"  # approve / reject pull requests (Founder only)
+    # AI Review & Quality Gate Engine (Sprint 14)
+    QUALITY_READ = "quality:read"
+    QUALITY_REVIEW = "quality:review"  # run / re-run quality gates (Founder + Director)
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -70,6 +73,7 @@ _READS = {
     Permission.KNOWLEDGE_READ,
     Permission.REPO_READ,
     Permission.DEV_READ,
+    Permission.QUALITY_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
@@ -88,6 +92,8 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
         Permission.KNOWLEDGE_APPROVE,
         # Development: may start/monitor autonomous tasks (approval is Founder-only).
         Permission.DEV_EXECUTE,
+        # Quality: may run/re-run quality gates (Founder overrides approval).
+        Permission.QUALITY_REVIEW,
     },
     # Department management: manages employees, AI org, department work, execution.
     Role.DEPARTMENT_HEAD: _READS

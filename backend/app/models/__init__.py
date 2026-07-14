@@ -73,6 +73,18 @@ from app.models.provider_platform import (
     ProviderSecret,
     ProviderUsage,
 )
+from app.models.quality import (
+    ComplianceFinding,
+    DependencyFinding,
+    DocumentationFinding,
+    PerformanceFinding,
+    QualityGateRun,
+    QualityMetrics,
+    QualityRule,
+    ReleaseReadiness,
+    ReviewFinding,
+    SecurityFinding,
+)
 from app.models.repository import (
     Repository,
     RepositoryArchitecture,
@@ -184,4 +196,14 @@ __all__ = [
     "PullRequest",
     "ApprovalHistory",
     "ImplementationMetrics",
+    "QualityRule",
+    "QualityGateRun",
+    "ReviewFinding",
+    "SecurityFinding",
+    "PerformanceFinding",
+    "DependencyFinding",
+    "DocumentationFinding",
+    "ComplianceFinding",
+    "QualityMetrics",
+    "ReleaseReadiness",
 ]
