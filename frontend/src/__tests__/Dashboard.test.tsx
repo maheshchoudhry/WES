@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { aiApi } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
 import { executionApi } from "../api/execution";
+import { orchestrationApi } from "../api/orchestration";
 import { workApi } from "../api/work";
 import { Dashboard } from "../pages/Dashboard";
 
@@ -12,6 +13,7 @@ vi.mock("../api/dashboard");
 vi.mock("../api/ai");
 vi.mock("../api/work");
 vi.mock("../api/execution");
+vi.mock("../api/orchestration");
 
 const company = {
   id: "c1",
@@ -33,6 +35,18 @@ function renderDashboard() {
 }
 
 beforeEach(() => {
+  vi.mocked(orchestrationApi.founderDashboard).mockResolvedValue({
+    data: {
+      providers: [{ name: "mock", enabled: true, is_default: true, health: "healthy" }],
+      running_executions: 0,
+      failed_executions: 1,
+      completed_executions: 2,
+      execution_queue: 3,
+      token_usage: 486,
+      estimated_cost: 0,
+      avg_runtime_ms: 5,
+    },
+  } as never);
   vi.mocked(executionApi.founderDashboard).mockResolvedValue({
     data: {
       ai_work_queue: 5,
