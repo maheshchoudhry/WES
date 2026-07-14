@@ -14,6 +14,7 @@ framework) — it documents the software as built.
 | Sprint 06 | [AI Company Core](./ai-company.md) | Implemented |
 | Sprint 07 | [AI Work Management](./work-management.md) | Implemented |
 | Sprint 08 | [AI Execution Engine](./execution-engine.md) | Implemented |
+| Sprint 09 | [AI Orchestration & Provider Abstraction](./orchestration-engine.md) | Implemented |
 
 ## Contents
 
@@ -23,6 +24,7 @@ framework) — it documents the software as built.
 - [AI Company Core](./ai-company.md) — AI organization: employees, roles, org chart
 - [AI Work Management](./work-management.md) — projects, sprints, tasks, Kanban, assignments
 - [AI Execution Engine](./execution-engine.md) — workspaces, queue, libraries, handoffs
+- [AI Orchestration & Provider Abstraction](./orchestration-engine.md) — pipeline, providers, conversation, memory
 - [API Reference](./api.md) — every REST endpoint, request/response shapes, error codes
 - [Setup Guide](./setup.md) — run locally and with Docker
 
