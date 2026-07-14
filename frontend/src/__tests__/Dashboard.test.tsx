@@ -10,6 +10,7 @@ import { orchestrationApi } from "../api/orchestration";
 import { repositoryApi } from "../api/repository";
 import { developmentApi } from "../api/development";
 import { qualityApi } from "../api/quality";
+import { devopsApi } from "../api/devops";
 import { workApi } from "../api/work";
 import { Dashboard } from "../pages/Dashboard";
 
@@ -22,6 +23,7 @@ vi.mock("../api/knowledge");
 vi.mock("../api/repository");
 vi.mock("../api/development");
 vi.mock("../api/quality");
+vi.mock("../api/devops");
 
 const company = {
   id: "c1",
@@ -53,6 +55,33 @@ beforeEach(() => {
       token_usage: 486,
       estimated_cost: 0,
       avg_runtime_ms: 5,
+    },
+  } as never);
+  vi.mocked(devopsApi.founderDashboard).mockResolvedValue({
+    data: {
+      total_pipelines: 2,
+      running: 0,
+      awaiting_production: 1,
+      passed: 1,
+      failed: 0,
+      deployments: 3,
+      production_deployments: 1,
+      releases: 2,
+      open_incidents: 0,
+      system_health: {
+        overall_status: "healthy",
+        app_status: "healthy",
+        api_status: "healthy",
+        db_status: "healthy",
+        provider_status: "healthy",
+        cpu_pct: 10,
+        memory_pct: 40,
+        disk_pct: 30,
+        queue_depth: 0,
+        response_time_ms: 2,
+        created_at: null,
+      },
+      recent_pipelines: [],
     },
   } as never);
   vi.mocked(qualityApi.founderDashboard).mockResolvedValue({
