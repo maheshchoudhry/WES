@@ -68,6 +68,9 @@ class ContextBuilder:
     def __init__(self, db: Session):
         self.db = db
         self.retrieval = RetrievalService(db)
+        from app.services.repo_analysis import RepositoryRetrievalService
+
+        self.repo_retrieval = RepositoryRetrievalService(db)
 
     def build(self, employee: AIEmployee, work_item: WorkItem | None) -> dict:
         project = sprint = None
@@ -97,6 +100,9 @@ class ContextBuilder:
         knowledge = self.retrieval.retrieve_for(
             keywords=keywords, ai_employee_id=employee.id, limit=5
         )
+        # Retrieve repository intelligence BEFORE code work (Sprint 12).
+        # Resilient when no repository has been scanned yet (returns empty slots).
+        repository = self.repo_retrieval.retrieve_for(keywords=keywords, limit=6)
         return {
             "project": (
                 {
@@ -137,6 +143,7 @@ class ContextBuilder:
             ],
             "organization": "WORLD Engineering Studio — AI software company.",
             "knowledge": knowledge,
+            "repository": repository,
         }
 
 
@@ -179,6 +186,23 @@ class PromptBuilder:
                 Message(
                     role="system",
                     content="Relevant organizational knowledge to apply: " + "; ".join(titles),
+                )
+            )
+        # Repository intelligence retrieved before code work (Sprint 12).
+        repo = context.get("repository") or {}
+        if repo.get("repository"):
+            arch = ", ".join(
+                f"{a['layer']}({a['file_count']})" for a in repo.get("architecture", [])[:6]
+            )
+            files = "; ".join(f["file_path"] for f in repo.get("relevant_files", [])[:5])
+            messages.append(
+                Message(
+                    role="system",
+                    content=(
+                        f"Repository '{repo['repository']['name']}' "
+                        f"({repo['repository'].get('primary_language')}). Architecture: {arch}. "
+                        + (f"Relevant files: {files}." if files else "")
+                    ),
                 )
             )
         task = context.get("task")

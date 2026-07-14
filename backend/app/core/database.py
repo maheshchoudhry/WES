@@ -23,7 +23,11 @@ engine = create_engine(
 )
 
 
-if _is_sqlite and not settings.database_url.endswith(":memory:") and "mode=memory" not in settings.database_url:
+if (
+    _is_sqlite
+    and not settings.database_url.endswith(":memory:")
+    and "mode=memory" not in settings.database_url
+):
 
     @event.listens_for(engine, "connect")
     def _sqlite_pragmas(dbapi_conn, _):
@@ -34,6 +38,7 @@ if _is_sqlite and not settings.database_url.endswith(":memory:") and "mode=memor
         cur.execute("PRAGMA busy_timeout=30000")
         cur.execute("PRAGMA synchronous=NORMAL")
         cur.close()
+
 
 SessionLocal = sessionmaker(
     bind=engine, autoflush=False, autocommit=False, expire_on_commit=False, future=True
