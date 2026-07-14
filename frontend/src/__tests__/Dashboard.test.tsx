@@ -7,6 +7,7 @@ import { dashboardApi } from "../api/dashboard";
 import { executionApi } from "../api/execution";
 import { knowledgeApi } from "../api/knowledge";
 import { orchestrationApi } from "../api/orchestration";
+import { repositoryApi } from "../api/repository";
 import { workApi } from "../api/work";
 import { Dashboard } from "../pages/Dashboard";
 
@@ -16,6 +17,7 @@ vi.mock("../api/work");
 vi.mock("../api/execution");
 vi.mock("../api/orchestration");
 vi.mock("../api/knowledge");
+vi.mock("../api/repository");
 
 const company = {
   id: "c1",
@@ -48,6 +50,37 @@ beforeEach(() => {
       estimated_cost: 0,
       avg_runtime_ms: 5,
     },
+  } as never);
+  vi.mocked(repositoryApi.list).mockResolvedValue({
+    data: [
+      {
+        id: "r1",
+        slug: "wes-backend",
+        name: "WES Backend",
+        root_path: "/x",
+        description: null,
+        primary_language: "python",
+        frameworks: ["fastapi"],
+        status: "indexed",
+        last_scanned_at: null,
+        metrics: {
+          file_count: 130,
+          module_count: 20,
+          symbol_count: 900,
+          class_count: 120,
+          function_count: 600,
+          route_count: 80,
+          model_count: 40,
+          line_count: 12000,
+          dependency_count: 400,
+          test_file_count: 20,
+          technical_debt: 3,
+          health_score: 72,
+          languages: { python: 130 },
+        },
+      },
+    ],
+    meta: { total: 1 },
   } as never);
   vi.mocked(knowledgeApi.founderDashboard).mockResolvedValue({
     data: {
