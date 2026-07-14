@@ -75,8 +75,10 @@ from app.domain.roles import Role  # noqa: E402
 
 
 def _principal(role: Role) -> CurrentUser:
+    # Deterministic per-role id so a principal is stable across requests within a
+    # test (needed for per-user features like knowledge bookmarks).
     return CurrentUser(
-        id=uuid.uuid4(),
+        id=uuid.uuid5(uuid.NAMESPACE_DNS, f"wes-test-{role.value}"),
         email=f"{role.value}@wes.studio",
         role=role,
         full_name=f"Test {role.value}",
@@ -181,6 +183,31 @@ def orch_seeded(SessionFactory):
         seed_execution(db)
         db.flush()
         seed_orchestration(db)
+        db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
+def knowledge_seeded(SessionFactory):
+    """Seed AI org + work + execution + orchestration + knowledge into the test DB."""
+    from app.db.seed_ai import seed_ai
+    from app.db.seed_execution import seed_execution
+    from app.db.seed_knowledge import seed_knowledge
+    from app.db.seed_orchestration import seed_orchestration
+    from app.db.seed_work import seed_work
+
+    db = SessionFactory()
+    try:
+        seed_ai(db)
+        db.flush()
+        seed_work(db)
+        db.flush()
+        seed_execution(db)
+        db.flush()
+        seed_orchestration(db)
+        db.flush()
+        seed_knowledge(db)
         db.commit()
     finally:
         db.close()
