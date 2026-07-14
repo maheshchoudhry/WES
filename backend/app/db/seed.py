@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.database import SessionLocal
 from app.db.seed_ai import seed_ai
+from app.db.seed_devops import seed_devops
 from app.db.seed_execution import seed_execution
 from app.db.seed_knowledge import seed_knowledge
 from app.db.seed_orchestration import seed_orchestration
@@ -214,6 +215,8 @@ def seed(db: Session) -> Company | None:
         seed_repository(db)
         db.flush()
         seed_quality(db)
+        db.flush()
+        seed_devops(db)
         db.commit()
         return None
 
@@ -270,6 +273,8 @@ def seed(db: Session) -> Company | None:
     seed_repository(db)
     db.flush()
     seed_quality(db)
+    db.flush()
+    seed_devops(db)
     db.commit()
     return company
 
