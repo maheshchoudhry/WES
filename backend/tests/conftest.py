@@ -276,6 +276,43 @@ def dev_seeded(SessionFactory):
 
 
 @pytest.fixture
+def quality_seeded(SessionFactory):
+    """dev_seeded context + the seeded quality-gate rules."""
+    import os
+
+    from app.db.seed_ai import seed_ai
+    from app.db.seed_execution import seed_execution
+    from app.db.seed_knowledge import seed_knowledge
+    from app.db.seed_orchestration import seed_orchestration
+    from app.db.seed_quality import seed_quality
+    from app.db.seed_work import seed_work
+    from app.services.repository_service import IndexerService, RepositoryService
+
+    db = SessionFactory()
+    try:
+        seed_ai(db)
+        db.flush()
+        seed_work(db)
+        db.flush()
+        seed_execution(db)
+        db.flush()
+        seed_orchestration(db)
+        db.flush()
+        seed_knowledge(db)
+        db.flush()
+        repo = RepositoryService(db).register(
+            "WES Backend Test", os.path.abspath("app/providers"), slug="wes-q-test"
+        )
+        db.flush()
+        IndexerService(db).scan(repo.id)
+        db.flush()
+        seed_quality(db)
+        db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
 def company(client) -> dict:
     """A persisted company, returned as its API representation."""
     resp = client.post(
