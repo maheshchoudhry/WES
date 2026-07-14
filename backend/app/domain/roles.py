@@ -36,6 +36,9 @@ class Permission(str, Enum):
     # Work Management (Sprint 07)
     WORK_READ = "work:read"
     WORK_WRITE = "work:write"  # create / update / delete projects, sprints, tasks
+    # Execution Engine (Sprint 08)
+    EXEC_READ = "exec:read"
+    EXEC_WRITE = "exec:write"  # queue advance, reviews, handoffs, library authoring
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -48,22 +51,29 @@ _READS = {
     Permission.SELF_READ,
     Permission.AI_READ,
     Permission.WORK_READ,
+    Permission.EXEC_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
     # Full access to everything.
     Role.FOUNDER: set(Permission),
-    # Project management: manages departments, employees, AI org, and work.
+    # Project management: manages departments, employees, AI org, work, execution.
     Role.DIRECTOR: _READS
     | {
         Permission.DEPARTMENT_WRITE,
         Permission.EMPLOYEE_WRITE,
         Permission.AI_UPDATE,
         Permission.WORK_WRITE,
+        Permission.EXEC_WRITE,
     },
-    # Department management: manages employees, AI org, and department work.
+    # Department management: manages employees, AI org, department work, execution.
     Role.DEPARTMENT_HEAD: _READS
-    | {Permission.EMPLOYEE_WRITE, Permission.AI_UPDATE, Permission.WORK_WRITE},
+    | {
+        Permission.EMPLOYEE_WRITE,
+        Permission.AI_UPDATE,
+        Permission.WORK_WRITE,
+        Permission.EXEC_WRITE,
+    },
     # Self workspace: read-only across the workspace (view assigned work).
     Role.EMPLOYEE: set(_READS),
     # Read-only access.

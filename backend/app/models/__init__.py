@@ -12,6 +12,17 @@ from app.models.base import Base
 from app.models.company import Company
 from app.models.department import Department
 from app.models.employee import Employee
+from app.models.execution import (
+    SOP,
+    AIWorkspace,
+    DecisionRule,
+    ExecutionContext,
+    ExecutionHistory,
+    ExecutionQueueItem,
+    Handoff,
+    PromptTemplate,
+    ReviewItem,
+)
 from app.models.work import (
     ActivityLog,
     Assignment,
@@ -44,4 +55,13 @@ __all__ = [
     "ActivityLog",
     "Comment",
     "AttachmentMetadata",
+    "AIWorkspace",
+    "PromptTemplate",
+    "SOP",
+    "DecisionRule",
+    "ExecutionQueueItem",
+    "ExecutionHistory",
+    "ReviewItem",
+    "Handoff",
+    "ExecutionContext",
 ]

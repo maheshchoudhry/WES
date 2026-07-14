@@ -12,7 +12,9 @@ from app.api.v1 import (
     dashboard,
     departments,
     employees,
+    execution,
     health,
+    libraries,
     projects,
     sprints,
     tasks,
@@ -34,3 +36,5 @@ api_router.include_router(sprints.router)
 api_router.include_router(tasks.router)
 api_router.include_router(assignments.router)
 api_router.include_router(work_dashboard.router)
+api_router.include_router(execution.router)
+api_router.include_router(libraries.router)

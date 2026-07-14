@@ -126,3 +126,9 @@ def get_work_analytics_service(db: Session = Depends(get_db)):
     from app.services.work_analytics import WorkAnalyticsService
 
     return WorkAnalyticsService(db)
+
+
+def get_execution_service(db: Session = Depends(get_db)):
+    from app.services.execution import ExecutionService
+
+    return ExecutionService(db)
