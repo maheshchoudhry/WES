@@ -46,6 +46,9 @@ class Permission(str, Enum):
     KNOWLEDGE_READ = "knowledge:read"
     KNOWLEDGE_WRITE = "knowledge:write"  # author / edit documents (authors + management)
     KNOWLEDGE_APPROVE = "knowledge:approve"  # approve / reject reviews (Directors + Founder)
+    # Repository Intelligence Engine (Sprint 12)
+    REPO_READ = "repo:read"
+    REPO_WRITE = "repo:write"  # register / scan repositories (Founder only)
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -61,6 +64,7 @@ _READS = {
     Permission.EXEC_READ,
     Permission.ORCH_READ,
     Permission.KNOWLEDGE_READ,
+    Permission.REPO_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
