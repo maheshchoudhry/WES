@@ -18,6 +18,7 @@ framework) — it documents the software as built.
 | Sprint 10 | [Organizational Knowledge Engine](./knowledge-engine.md) | Implemented |
 | Sprint 11 | [Live AI Provider Integration Platform](./provider-platform.md) | Implemented |
 | Sprint 12 | [Repository Intelligence & Code Understanding](./repository-intelligence.md) | Implemented |
+| Sprint 13 | [Autonomous Software Development Engine](./development-engine.md) | Implemented |
 
 ## Contents
 
@@ -31,6 +32,7 @@ framework) — it documents the software as built.
 - [Organizational Knowledge Engine](./knowledge-engine.md) — documents, knowledge graph, search, AI retrieval
 - [Live AI Provider Integration Platform](./provider-platform.md) — real providers, secrets, streaming, failover, budget
 - [Repository Intelligence & Code Understanding](./repository-intelligence.md) — scanner, parser, symbols, graphs, impact
+- [Autonomous Software Development Engine](./development-engine.md) — plan, generate, test, review, git, PR, approval
 - [API Reference](./api.md) — every REST endpoint, request/response shapes, error codes
 - [Setup Guide](./setup.md) — run locally and with Docker
 
