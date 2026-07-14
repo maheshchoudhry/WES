@@ -20,6 +20,7 @@ framework) — it documents the software as built.
 | Sprint 12 | [Repository Intelligence & Code Understanding](./repository-intelligence.md) | Implemented |
 | Sprint 13 | [Autonomous Software Development Engine](./development-engine.md) | Implemented |
 | Sprint 14 | [AI Review, Security & Quality Gate Engine](./quality-gate-engine.md) | Implemented |
+| Sprint 15 | [Enterprise DevOps, CI/CD & Production Platform](./devops-platform.md) | Implemented |
 
 ## Contents
 
@@ -35,6 +36,7 @@ framework) — it documents the software as built.
 - [Repository Intelligence & Code Understanding](./repository-intelligence.md) — scanner, parser, symbols, graphs, impact
 - [Autonomous Software Development Engine](./development-engine.md) — plan, generate, test, review, git, PR, approval
 - [AI Review, Security & Quality Gate Engine](./quality-gate-engine.md) — review engines, gates, compliance, risk, release readiness
+- [Enterprise DevOps, CI/CD & Production Platform](./devops-platform.md) — build, docker, artifacts, deploy, monitor, rollback
 - [API Reference](./api.md) — every REST endpoint, request/response shapes, error codes
 - [Setup Guide](./setup.md) — run locally and with Docker
 
