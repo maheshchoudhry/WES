@@ -33,6 +33,7 @@ from app.models.orchestration import (
 )
 from app.models.work import Project, ProjectSprint, WorkItem
 from app.providers import ExecutionRequest, Message, ProviderError
+from app.services.knowledge_search import RetrievalService
 from app.services.providers_service import ProviderService
 
 PROMPT_VERSION = "v1"
@@ -47,6 +48,7 @@ def _now() -> datetime:
 class ContextBuilder:
     def __init__(self, db: Session):
         self.db = db
+        self.retrieval = RetrievalService(db)
 
     def build(self, employee: AIEmployee, work_item: WorkItem | None) -> dict:
         project = sprint = None
@@ -64,6 +66,17 @@ class ContextBuilder:
             )
             if employee.role_id
             else []
+        )
+        # Retrieve relevant organizational knowledge BEFORE execution (Sprint 10).
+        # Keywords come from the task title / employee role; retrieval is resilient
+        # when the knowledge base is empty (returns empty slots).
+        kw_parts = [
+            (work_item.title if work_item else None),
+            (employee.role.title if employee.role else None),
+        ]
+        keywords = " ".join(p for p in kw_parts if p) or None
+        knowledge = self.retrieval.retrieve_for(
+            keywords=keywords, ai_employee_id=employee.id, limit=5
         )
         return {
             "project": (
@@ -104,6 +117,7 @@ class ContextBuilder:
                 for r in rules
             ],
             "organization": "WORLD Engineering Studio — AI software company.",
+            "knowledge": knowledge,
         }
 
 
@@ -134,6 +148,18 @@ class PromptBuilder:
                 Message(
                     role="system",
                     content=f"SOP — {context['sop']['title']}: {context['sop']['content']}",
+                )
+            )
+        # Organizational knowledge retrieved before execution (Sprint 10).
+        knowledge = context.get("knowledge") or {}
+        titles: list[str] = []
+        for slot in ("relevant_sop", "relevant_adr", "relevant_standards", "relevant_documents"):
+            titles.extend(f"{d['code']} {d['title']}" for d in knowledge.get(slot, []))
+        if titles:
+            messages.append(
+                Message(
+                    role="system",
+                    content="Relevant organizational knowledge to apply: " + "; ".join(titles),
                 )
             )
         task = context.get("task")
