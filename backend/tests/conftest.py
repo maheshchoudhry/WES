@@ -13,6 +13,7 @@ os.environ["WES_AUTO_MIGRATE"] = "false"
 os.environ["WES_SEED_ON_START"] = "false"
 # Isolate autonomous-development git sandboxes to a temp dir for tests.
 os.environ.setdefault("WES_DEV_WORKSPACE_DIR", "/tmp/wes-dev-test-workspaces")
+os.environ.setdefault("WES_DEVOPS_WORKSPACE_DIR", "/tmp/wes-devops-test")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -307,6 +308,46 @@ def quality_seeded(SessionFactory):
         IndexerService(db).scan(repo.id)
         db.flush()
         seed_quality(db)
+        db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
+def devops_seeded(SessionFactory):
+    """Full context (quality_seeded) + environment profiles, for the DevOps platform."""
+    import os
+
+    from app.db.seed_ai import seed_ai
+    from app.db.seed_devops import seed_devops
+    from app.db.seed_execution import seed_execution
+    from app.db.seed_knowledge import seed_knowledge
+    from app.db.seed_orchestration import seed_orchestration
+    from app.db.seed_quality import seed_quality
+    from app.db.seed_work import seed_work
+    from app.services.repository_service import IndexerService, RepositoryService
+
+    db = SessionFactory()
+    try:
+        seed_ai(db)
+        db.flush()
+        seed_work(db)
+        db.flush()
+        seed_execution(db)
+        db.flush()
+        seed_orchestration(db)
+        db.flush()
+        seed_knowledge(db)
+        db.flush()
+        repo = RepositoryService(db).register(
+            "WES Backend Test", os.path.abspath("app/providers"), slug="wes-ops-test"
+        )
+        db.flush()
+        IndexerService(db).scan(repo.id)
+        db.flush()
+        seed_quality(db)
+        db.flush()
+        seed_devops(db)
         db.commit()
     finally:
         db.close()
