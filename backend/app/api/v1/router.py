@@ -11,6 +11,7 @@ from app.api.v1 import (
     companies,
     dashboard,
     departments,
+    development,
     employees,
     execution,
     health,
@@ -46,3 +47,4 @@ api_router.include_router(providers.router)
 api_router.include_router(orchestration.router)
 api_router.include_router(knowledge.router)
 api_router.include_router(repository.router)
+api_router.include_router(development.router)

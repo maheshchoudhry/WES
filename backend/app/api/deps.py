@@ -324,3 +324,24 @@ def get_repository_dashboard(db: Session = Depends(get_db)):
     from app.services.repo_analysis import RepositoryDashboard
 
     return RepositoryDashboard(db)
+
+
+# --- Autonomous Development service providers (Sprint 13) ------------------
+
+
+def get_development_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.development_service import DevelopmentService
+
+    return DevelopmentService(db, actor=_actor(user))
+
+
+def get_approval_dev_service(
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    from app.services.dev_review import ApprovalService
+
+    return ApprovalService(db, actor=user.full_name)
