@@ -16,6 +16,7 @@ framework) — it documents the software as built.
 | Sprint 08 | [AI Execution Engine](./execution-engine.md) | Implemented |
 | Sprint 09 | [AI Orchestration & Provider Abstraction](./orchestration-engine.md) | Implemented |
 | Sprint 10 | [Organizational Knowledge Engine](./knowledge-engine.md) | Implemented |
+| Sprint 11 | [Live AI Provider Integration Platform](./provider-platform.md) | Implemented |
 
 ## Contents
 
@@ -27,6 +28,7 @@ framework) — it documents the software as built.
 - [AI Execution Engine](./execution-engine.md) — workspaces, queue, libraries, handoffs
 - [AI Orchestration & Provider Abstraction](./orchestration-engine.md) — pipeline, providers, conversation, memory
 - [Organizational Knowledge Engine](./knowledge-engine.md) — documents, knowledge graph, search, AI retrieval
+- [Live AI Provider Integration Platform](./provider-platform.md) — real providers, secrets, streaming, failover, budget
 - [API Reference](./api.md) — every REST endpoint, request/response shapes, error codes
 - [Setup Guide](./setup.md) — run locally and with Docker
 
