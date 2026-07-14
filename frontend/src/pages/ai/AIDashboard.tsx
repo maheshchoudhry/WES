@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { aiApi, type AIDeptView, type AISummary } from "../../api/ai";
+import { executionApi, type ExecAIDash } from "../../api/execution";
 import { workApi, type AIWorkSummary } from "../../api/work";
 import { ErrorNotice, Loading } from "../../components/States";
 import { QuickActions, SectionCard, StatCard } from "../../components/widgets";
@@ -17,13 +18,20 @@ async function load(): Promise<{
   summary: AISummary;
   departments: AIDeptView[];
   work: AIWorkSummary;
+  exec: ExecAIDash;
 }> {
-  const [summary, departments, work] = await Promise.all([
+  const [summary, departments, work, exec] = await Promise.all([
     aiApi.summary(),
     aiApi.departmentView(),
     workApi.aiSummary(),
+    executionApi.aiDashboard(),
   ]);
-  return { summary: summary.data, departments: departments.data, work: work.data };
+  return {
+    summary: summary.data,
+    departments: departments.data,
+    work: work.data,
+    exec: exec.data,
+  };
 }
 
 export function AIDashboard() {
@@ -32,7 +40,7 @@ export function AIDashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { summary, departments, work } = data;
+  const { summary, departments, work, exec } = data;
 
   return (
     <div>
@@ -98,11 +106,18 @@ export function AIDashboard() {
               </ul>
             )}
           </SectionCard>
+          <SectionCard title="Execution">
+            <div className="grid stats">
+              <StatCard label="Execution Queue" value={exec.execution_queue} />
+              <StatCard label="Current Work" value={exec.current_work} />
+              <StatCard label="Review Queue" value={exec.review_queue} />
+            </div>
+          </SectionCard>
           <SectionCard title="Explore">
             <QuickActions
               actions={[
                 { label: "Directory", to: "/ai/directory" },
-                { label: "Org Chart", to: "/ai/org" },
+                { label: "Workspace", to: "/execution/workspace" },
                 { label: "Projects", to: "/projects" },
               ]}
             />

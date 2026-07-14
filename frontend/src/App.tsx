@@ -16,6 +16,13 @@ import { EmployeesPage } from "./pages/EmployeesPage";
 import { Forbidden } from "./pages/Forbidden";
 import { Login } from "./pages/Login";
 import { Unauthorized } from "./pages/Unauthorized";
+import { AIWorkspace } from "./pages/execution/AIWorkspace";
+import { ExecutionHistory } from "./pages/execution/ExecutionHistory";
+import { ExecutionQueue } from "./pages/execution/ExecutionQueue";
+import { PerformanceDashboard } from "./pages/execution/PerformanceDashboard";
+import { PromptLibrary } from "./pages/execution/PromptLibrary";
+import { ReviewQueue } from "./pages/execution/ReviewQueue";
+import { SOPLibrary } from "./pages/execution/SOPLibrary";
 import { KanbanBoard } from "./pages/work/KanbanBoard";
 import { ProjectDetail } from "./pages/work/ProjectDetail";
 import { ProjectsPage } from "./pages/work/ProjectsPage";
@@ -56,6 +63,13 @@ export default function App() {
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/board" element={<KanbanBoard />} />
         <Route path="/tasks/:id" element={<TaskDetail />} />
+        <Route path="/execution/workspace" element={<AIWorkspace />} />
+        <Route path="/execution/queue" element={<ExecutionQueue />} />
+        <Route path="/execution/reviews" element={<ReviewQueue />} />
+        <Route path="/execution/history" element={<ExecutionHistory />} />
+        <Route path="/execution/performance" element={<PerformanceDashboard />} />
+        <Route path="/execution/prompts" element={<PromptLibrary />} />
+        <Route path="/execution/sops" element={<SOPLibrary />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>

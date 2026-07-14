@@ -24,6 +24,16 @@ const workNav = [
   { to: "/board", label: "Task Board", end: false },
 ];
 
+// Execution Engine (Sprint 08).
+const execNav = [
+  { to: "/execution/workspace", label: "AI Workspace", end: false },
+  { to: "/execution/queue", label: "Execution Queue", end: false },
+  { to: "/execution/reviews", label: "Review Queue", end: false },
+  { to: "/execution/prompts", label: "Prompt Library", end: false },
+  { to: "/execution/sops", label: "SOP Library", end: false },
+  { to: "/execution/performance", label: "Performance", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
 const reserved = ["Knowledge", "Reports", "Settings"];
 
@@ -63,6 +73,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="nav-reserved">
           <div className="nav-reserved-label">AI Company</div>
           {aiNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">Execution</div>
+          {execNav.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end}>
               {l.label}
             </NavLink>

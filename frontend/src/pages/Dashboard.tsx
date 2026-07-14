@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import { aiApi, type AISummary } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
+import { executionApi, type ExecFounderDash } from "../api/execution";
 import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
   ActivityItem,
@@ -31,10 +32,11 @@ interface DashboardData {
   health: SystemHealth;
   ai: AISummary;
   work: FounderWorkSummary;
+  exec: ExecFounderDash;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
-  const [stats, departments, employees, activity, health, ai, work] = await Promise.all([
+  const [stats, departments, employees, activity, health, ai, work, exec] = await Promise.all([
     dashboardApi.stats(),
     dashboardApi.departments(),
     dashboardApi.employees(),
@@ -42,6 +44,7 @@ async function loadDashboard(): Promise<DashboardData> {
     dashboardApi.health(),
     aiApi.summary(),
     workApi.founderSummary(),
+    executionApi.founderDashboard(),
   ]);
   return {
     stats: stats.data,
@@ -51,6 +54,7 @@ async function loadDashboard(): Promise<DashboardData> {
     health: health.data,
     ai: ai.data,
     work: work.data,
+    exec: exec.data,
   };
 }
 
@@ -61,7 +65,7 @@ export function Dashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { stats, departments, employees, activity, health, ai, work } = data;
+  const { stats, departments, employees, activity, health, ai, work, exec } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
     ai.organization_health === "healthy"
@@ -145,6 +149,29 @@ export function Dashboard() {
                   accent={work.blocked_tasks > 0 ? "warn" : "ok"}
                 />
                 <StatCard label="Velocity" value={work.velocity} hint="completed sprints" />
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* Execution summary */}
+          <div className="span-all">
+            <SectionCard
+              title="AI Execution"
+              action={
+                <Link to="/execution/performance" className="btn btn-sm">
+                  Performance
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="Work Queue" value={exec.ai_work_queue} />
+                <StatCard label="In Progress" value={exec.in_progress} />
+                <StatCard
+                  label="Pending Reviews"
+                  value={exec.pending_reviews}
+                  accent={exec.pending_reviews > 0 ? "warn" : "ok"}
+                />
+                <StatCard label="Completed" value={exec.completed_work} accent="ok" />
               </div>
             </SectionCard>
           </div>
