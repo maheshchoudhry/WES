@@ -34,6 +34,12 @@ const execNav = [
   { to: "/execution/performance", label: "Performance", end: false },
 ];
 
+// Orchestration Engine (Sprint 09).
+const orchNav = [
+  { to: "/orchestration/runs", label: "Executions", end: false },
+  { to: "/settings/providers", label: "AI Providers", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
 const reserved = ["Knowledge", "Reports", "Settings"];
 
@@ -81,6 +87,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="nav-reserved">
           <div className="nav-reserved-label">Execution</div>
           {execNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">Orchestration</div>
+          {orchNav.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end}>
               {l.label}
             </NavLink>

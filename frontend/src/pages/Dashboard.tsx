@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { aiApi, type AISummary } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
 import { executionApi, type ExecFounderDash } from "../api/execution";
+import { orchestrationApi, type OrchFounderDash } from "../api/orchestration";
 import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
   ActivityItem,
@@ -33,19 +34,23 @@ interface DashboardData {
   ai: AISummary;
   work: FounderWorkSummary;
   exec: ExecFounderDash;
+  orch: OrchFounderDash;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
-  const [stats, departments, employees, activity, health, ai, work, exec] = await Promise.all([
-    dashboardApi.stats(),
-    dashboardApi.departments(),
-    dashboardApi.employees(),
-    dashboardApi.activity(8),
-    dashboardApi.health(),
-    aiApi.summary(),
-    workApi.founderSummary(),
-    executionApi.founderDashboard(),
-  ]);
+  const [stats, departments, employees, activity, health, ai, work, exec, orch] = await Promise.all(
+    [
+      dashboardApi.stats(),
+      dashboardApi.departments(),
+      dashboardApi.employees(),
+      dashboardApi.activity(8),
+      dashboardApi.health(),
+      aiApi.summary(),
+      workApi.founderSummary(),
+      executionApi.founderDashboard(),
+      orchestrationApi.founderDashboard(),
+    ],
+  );
   return {
     stats: stats.data,
     departments: departments.data,
@@ -55,6 +60,7 @@ async function loadDashboard(): Promise<DashboardData> {
     ai: ai.data,
     work: work.data,
     exec: exec.data,
+    orch: orch.data,
   };
 }
 
@@ -65,7 +71,7 @@ export function Dashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { stats, departments, employees, activity, health, ai, work, exec } = data;
+  const { stats, departments, employees, activity, health, ai, work, exec, orch } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
     ai.organization_health === "healthy"
@@ -172,6 +178,41 @@ export function Dashboard() {
                   accent={exec.pending_reviews > 0 ? "warn" : "ok"}
                 />
                 <StatCard label="Completed" value={exec.completed_work} accent="ok" />
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* Orchestration summary */}
+          <div className="span-all">
+            <SectionCard
+              title="AI Orchestration"
+              action={
+                <Link to="/settings/providers" className="btn btn-sm">
+                  Providers
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="Completed Runs" value={orch.completed_executions} accent="ok" />
+                <StatCard
+                  label="Failed Runs"
+                  value={orch.failed_executions}
+                  accent={orch.failed_executions > 0 ? "warn" : "ok"}
+                />
+                <StatCard label="Token Usage" value={orch.token_usage} />
+                <StatCard
+                  label="Est. Cost"
+                  value={`$${orch.estimated_cost.toFixed(4)}`}
+                  hint="mock is free"
+                />
+              </div>
+              <div className="quick-actions" style={{ marginTop: 12 }}>
+                {orch.providers.map((p) => (
+                  <span key={p.name} className="badge prio-medium">
+                    {p.name}: {p.health}
+                    {p.is_default ? " ★" : ""}
+                  </span>
+                ))}
               </div>
             </SectionCard>
           </div>

@@ -16,6 +16,9 @@ import { EmployeesPage } from "./pages/EmployeesPage";
 import { Forbidden } from "./pages/Forbidden";
 import { Login } from "./pages/Login";
 import { Unauthorized } from "./pages/Unauthorized";
+import { Conversation } from "./pages/orchestration/Conversation";
+import { Executions } from "./pages/orchestration/Executions";
+import { ProviderSettings } from "./pages/orchestration/ProviderSettings";
 import { AIWorkspace } from "./pages/execution/AIWorkspace";
 import { ExecutionHistory } from "./pages/execution/ExecutionHistory";
 import { ExecutionQueue } from "./pages/execution/ExecutionQueue";
@@ -70,6 +73,9 @@ export default function App() {
         <Route path="/execution/performance" element={<PerformanceDashboard />} />
         <Route path="/execution/prompts" element={<PromptLibrary />} />
         <Route path="/execution/sops" element={<SOPLibrary />} />
+        <Route path="/orchestration/runs" element={<Executions />} />
+        <Route path="/orchestration/threads/:threadId" element={<Conversation />} />
+        <Route path="/settings/providers" element={<ProviderSettings />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>

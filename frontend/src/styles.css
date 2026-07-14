@@ -796,6 +796,39 @@ tbody tr:hover {
   padding: 5px 8px;
 }
 
+/* Conversation (orchestration threads) */
+.conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 900px;
+}
+
+.chat-msg {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+}
+
+.chat-msg.chat-assistant {
+  background: var(--surface-2);
+  border-color: var(--accent);
+}
+
+.chat-role {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.chat-content {
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
 /* Responsive */
 @media (max-width: 980px) {
   .dashboard-grid {
