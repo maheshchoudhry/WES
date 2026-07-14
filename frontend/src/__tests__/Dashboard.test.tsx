@@ -8,6 +8,7 @@ import { executionApi } from "../api/execution";
 import { knowledgeApi } from "../api/knowledge";
 import { orchestrationApi } from "../api/orchestration";
 import { repositoryApi } from "../api/repository";
+import { developmentApi } from "../api/development";
 import { workApi } from "../api/work";
 import { Dashboard } from "../pages/Dashboard";
 
@@ -18,6 +19,7 @@ vi.mock("../api/execution");
 vi.mock("../api/orchestration");
 vi.mock("../api/knowledge");
 vi.mock("../api/repository");
+vi.mock("../api/development");
 
 const company = {
   id: "c1",
@@ -49,6 +51,17 @@ beforeEach(() => {
       token_usage: 486,
       estimated_cost: 0,
       avg_runtime_ms: 5,
+    },
+  } as never);
+  vi.mocked(developmentApi.founderDashboard).mockResolvedValue({
+    data: {
+      running: 0,
+      completed: 2,
+      failed: 0,
+      pending_approvals: 1,
+      open_pull_requests: 1,
+      total_tasks: 3,
+      recent_tasks: [],
     },
   } as never);
   vi.mocked(repositoryApi.list).mockResolvedValue({
