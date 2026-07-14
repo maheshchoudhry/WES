@@ -40,8 +40,21 @@ const orchNav = [
   { to: "/settings/providers", label: "AI Providers", end: false },
 ];
 
+// Knowledge Engine (Sprint 10).
+const knowledgeNav = [
+  { to: "/knowledge", label: "Knowledge", end: true },
+  { to: "/knowledge/library", label: "Library", end: false },
+  { to: "/knowledge/search", label: "Search", end: false },
+  { to: "/knowledge/graph", label: "Knowledge Graph", end: false },
+  { to: "/knowledge/categories", label: "Categories", end: false },
+  { to: "/knowledge/collections", label: "Collections", end: false },
+  { to: "/knowledge/bookmarks", label: "Bookmarks", end: false },
+  { to: "/knowledge/reviews", label: "Review Center", end: false },
+  { to: "/knowledge/adrs", label: "Architecture Decisions", end: false },
+];
+
 // Reserved for future sprints — shown disabled so the shell is production-ready.
-const reserved = ["Knowledge", "Reports", "Settings"];
+const reserved = ["Reports", "Settings"];
 
 const ROLE_LABEL: Record<string, string> = {
   founder: "Founder",
@@ -95,6 +108,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="nav-reserved">
           <div className="nav-reserved-label">Orchestration</div>
           {orchNav.map((l) => (
+            <NavLink key={l.to} to={l.to} end={l.end}>
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
+        <div className="nav-reserved">
+          <div className="nav-reserved-label">Knowledge</div>
+          {knowledgeNav.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end}>
               {l.label}
             </NavLink>

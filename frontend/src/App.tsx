@@ -19,6 +19,17 @@ import { Unauthorized } from "./pages/Unauthorized";
 import { Conversation } from "./pages/orchestration/Conversation";
 import { Executions } from "./pages/orchestration/Executions";
 import { ProviderSettings } from "./pages/orchestration/ProviderSettings";
+import { AdvancedSearch } from "./pages/knowledge/AdvancedSearch";
+import { ArchitectureDecisions } from "./pages/knowledge/ArchitectureDecisions";
+import { Bookmarks } from "./pages/knowledge/Bookmarks";
+import { CategoryExplorer } from "./pages/knowledge/CategoryExplorer";
+import { Collections } from "./pages/knowledge/Collections";
+import { DocumentEditor } from "./pages/knowledge/DocumentEditor";
+import { DocumentViewer } from "./pages/knowledge/DocumentViewer";
+import { KnowledgeDashboard } from "./pages/knowledge/KnowledgeDashboard";
+import { KnowledgeGraph } from "./pages/knowledge/KnowledgeGraph";
+import { KnowledgeLibrary } from "./pages/knowledge/KnowledgeLibrary";
+import { ReviewCenter } from "./pages/knowledge/ReviewCenter";
 import { AIWorkspace } from "./pages/execution/AIWorkspace";
 import { ExecutionHistory } from "./pages/execution/ExecutionHistory";
 import { ExecutionQueue } from "./pages/execution/ExecutionQueue";
@@ -76,6 +87,18 @@ export default function App() {
         <Route path="/orchestration/runs" element={<Executions />} />
         <Route path="/orchestration/threads/:threadId" element={<Conversation />} />
         <Route path="/settings/providers" element={<ProviderSettings />} />
+        <Route path="/knowledge" element={<KnowledgeDashboard />} />
+        <Route path="/knowledge/library" element={<KnowledgeLibrary />} />
+        <Route path="/knowledge/new" element={<DocumentEditor />} />
+        <Route path="/knowledge/documents/:id" element={<DocumentViewer />} />
+        <Route path="/knowledge/documents/:id/edit" element={<DocumentEditor />} />
+        <Route path="/knowledge/categories" element={<CategoryExplorer />} />
+        <Route path="/knowledge/graph" element={<KnowledgeGraph />} />
+        <Route path="/knowledge/collections" element={<Collections />} />
+        <Route path="/knowledge/bookmarks" element={<Bookmarks />} />
+        <Route path="/knowledge/reviews" element={<ReviewCenter />} />
+        <Route path="/knowledge/adrs" element={<ArchitectureDecisions />} />
+        <Route path="/knowledge/search" element={<AdvancedSearch />} />
         <Route path="/forbidden" element={<Forbidden />} />
       </Route>
     </Routes>

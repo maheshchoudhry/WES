@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import { aiApi, type AIDeptView, type AISummary } from "../../api/ai";
 import { executionApi, type ExecAIDash } from "../../api/execution";
+import { knowledgeApi, type KnowledgeAIDash } from "../../api/knowledge";
 import { workApi, type AIWorkSummary } from "../../api/work";
 import { ErrorNotice, Loading } from "../../components/States";
 import { QuickActions, SectionCard, StatCard } from "../../components/widgets";
@@ -19,18 +20,21 @@ async function load(): Promise<{
   departments: AIDeptView[];
   work: AIWorkSummary;
   exec: ExecAIDash;
+  knowledge: KnowledgeAIDash;
 }> {
-  const [summary, departments, work, exec] = await Promise.all([
+  const [summary, departments, work, exec, knowledge] = await Promise.all([
     aiApi.summary(),
     aiApi.departmentView(),
     workApi.aiSummary(),
     executionApi.aiDashboard(),
+    knowledgeApi.aiDashboard(),
   ]);
   return {
     summary: summary.data,
     departments: departments.data,
     work: work.data,
     exec: exec.data,
+    knowledge: knowledge.data,
   };
 }
 
@@ -40,7 +44,7 @@ export function AIDashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { summary, departments, work, exec } = data;
+  const { summary, departments, work, exec, knowledge } = data;
 
   return (
     <div>
@@ -113,11 +117,44 @@ export function AIDashboard() {
               <StatCard label="Review Queue" value={exec.review_queue} />
             </div>
           </SectionCard>
+          <SectionCard
+            title="Suggested Knowledge"
+            action={
+              <Link to="/knowledge" className="btn btn-sm">
+                Knowledge Base
+              </Link>
+            }
+          >
+            {knowledge.coding_standards.length === 0 &&
+            knowledge.sop_recommendations.length === 0 &&
+            knowledge.architecture_references.length === 0 ? (
+              <p className="muted">No knowledge available yet.</p>
+            ) : (
+              <ul className="activity">
+                {[
+                  ...knowledge.coding_standards,
+                  ...knowledge.sop_recommendations,
+                  ...knowledge.architecture_references,
+                ]
+                  .slice(0, 6)
+                  .map((d) => (
+                    <li key={d.id}>
+                      <span className="activity-body">
+                        <Link to={`/knowledge/documents/${d.id}`} className="activity-label">
+                          {d.title}
+                        </Link>
+                      </span>
+                      <span className="badge prio-low">{d.doc_type.replace(/_/g, " ")}</span>
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </SectionCard>
           <SectionCard title="Explore">
             <QuickActions
               actions={[
                 { label: "Directory", to: "/ai/directory" },
-                { label: "Workspace", to: "/execution/workspace" },
+                { label: "Knowledge", to: "/knowledge" },
                 { label: "Projects", to: "/projects" },
               ]}
             />

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { aiApi, type AISummary } from "../api/ai";
 import { dashboardApi } from "../api/dashboard";
 import { executionApi, type ExecFounderDash } from "../api/execution";
+import { knowledgeApi, type KnowledgeFounderDash } from "../api/knowledge";
 import { orchestrationApi, type OrchFounderDash } from "../api/orchestration";
 import { workApi, type FounderWorkSummary } from "../api/work";
 import type {
@@ -35,11 +36,12 @@ interface DashboardData {
   work: FounderWorkSummary;
   exec: ExecFounderDash;
   orch: OrchFounderDash;
+  knowledge: KnowledgeFounderDash;
 }
 
 async function loadDashboard(): Promise<DashboardData> {
-  const [stats, departments, employees, activity, health, ai, work, exec, orch] = await Promise.all(
-    [
+  const [stats, departments, employees, activity, health, ai, work, exec, orch, knowledge] =
+    await Promise.all([
       dashboardApi.stats(),
       dashboardApi.departments(),
       dashboardApi.employees(),
@@ -49,8 +51,8 @@ async function loadDashboard(): Promise<DashboardData> {
       workApi.founderSummary(),
       executionApi.founderDashboard(),
       orchestrationApi.founderDashboard(),
-    ],
-  );
+      knowledgeApi.founderDashboard(),
+    ]);
   return {
     stats: stats.data,
     departments: departments.data,
@@ -61,6 +63,7 @@ async function loadDashboard(): Promise<DashboardData> {
     work: work.data,
     exec: exec.data,
     orch: orch.data,
+    knowledge: knowledge.data,
   };
 }
 
@@ -71,7 +74,7 @@ export function Dashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
-  const { stats, departments, employees, activity, health, ai, work, exec, orch } = data;
+  const { stats, departments, employees, activity, health, ai, work, exec, orch, knowledge } = data;
   const company = stats.company;
   const aiHealthAccent: "ok" | "warn" | "muted" =
     ai.organization_health === "healthy"
@@ -213,6 +216,44 @@ export function Dashboard() {
                     {p.is_default ? " ★" : ""}
                   </span>
                 ))}
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* Knowledge summary */}
+          <div className="span-all">
+            <SectionCard
+              title="Organizational Knowledge"
+              action={
+                <Link to="/knowledge" className="btn btn-sm">
+                  Knowledge Base
+                </Link>
+              }
+            >
+              <div className="grid stats">
+                <StatCard label="Documents" value={knowledge.documents} />
+                <StatCard label="Categories" value={knowledge.categories} />
+                <StatCard
+                  label="Pending Reviews"
+                  value={knowledge.pending_reviews}
+                  accent={knowledge.pending_reviews > 0 ? "warn" : "ok"}
+                />
+                <StatCard
+                  label="Knowledge Health"
+                  value={
+                    <span style={{ textTransform: "capitalize" }}>
+                      {knowledge.knowledge_health}
+                    </span>
+                  }
+                  accent={
+                    knowledge.knowledge_health === "healthy"
+                      ? "ok"
+                      : knowledge.knowledge_health === "empty"
+                        ? "muted"
+                        : "warn"
+                  }
+                  hint={`${knowledge.statistics.retrievals} AI retrievals`}
+                />
               </div>
             </SectionCard>
           </div>
