@@ -42,6 +42,10 @@ class Permission(str, Enum):
     # Orchestration Engine (Sprint 09)
     ORCH_READ = "orch:read"
     ORCH_WRITE = "orch:write"  # run pipeline, provider settings (Founder only)
+    # Organizational Knowledge Engine (Sprint 10)
+    KNOWLEDGE_READ = "knowledge:read"
+    KNOWLEDGE_WRITE = "knowledge:write"  # author / edit documents (authors + management)
+    KNOWLEDGE_APPROVE = "knowledge:approve"  # approve / reject reviews (Directors + Founder)
 
 
 # Read permissions are granted to every authenticated role so the workspace and
@@ -56,6 +60,7 @@ _READS = {
     Permission.WORK_READ,
     Permission.EXEC_READ,
     Permission.ORCH_READ,
+    Permission.KNOWLEDGE_READ,
 }
 
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
@@ -69,6 +74,9 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
         Permission.AI_UPDATE,
         Permission.WORK_WRITE,
         Permission.EXEC_WRITE,
+        # Knowledge: authors documents and approves reviews.
+        Permission.KNOWLEDGE_WRITE,
+        Permission.KNOWLEDGE_APPROVE,
     },
     # Department management: manages employees, AI org, department work, execution.
     Role.DEPARTMENT_HEAD: _READS
@@ -77,6 +85,8 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
         Permission.AI_UPDATE,
         Permission.WORK_WRITE,
         Permission.EXEC_WRITE,
+        # Knowledge: authors documents (Technical Writer / content authoring).
+        Permission.KNOWLEDGE_WRITE,
     },
     # Self workspace: read-only across the workspace (view assigned work).
     Role.EMPLOYEE: set(_READS),
