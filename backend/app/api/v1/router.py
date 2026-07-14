@@ -19,6 +19,7 @@ from app.api.v1 import (
     orchestration,
     projects,
     providers,
+    repository,
     sprints,
     tasks,
     work_dashboard,
@@ -44,3 +45,4 @@ api_router.include_router(libraries.router)
 api_router.include_router(providers.router)
 api_router.include_router(orchestration.router)
 api_router.include_router(knowledge.router)
+api_router.include_router(repository.router)

@@ -267,3 +267,60 @@ def get_adr_service(db: Session = Depends(get_db)):
     from app.services.knowledge_analytics import ADRService
 
     return ADRService(db)
+
+
+# --- Repository Intelligence service providers (Sprint 12) ----------------
+
+
+def get_repository_service(db: Session = Depends(get_db)):
+    from app.services.repository_service import RepositoryService
+
+    return RepositoryService(db)
+
+
+def get_indexer_service(db: Session = Depends(get_db)):
+    from app.services.repository_service import IndexerService
+
+    return IndexerService(db)
+
+
+def get_symbol_service(db: Session = Depends(get_db)):
+    from app.services.repo_analysis import SymbolService
+
+    return SymbolService(db)
+
+
+def get_dependency_service(db: Session = Depends(get_db)):
+    from app.services.repo_analysis import DependencyService
+
+    return DependencyService(db)
+
+
+def get_repo_search_service(db: Session = Depends(get_db)):
+    from app.services.repo_analysis import SearchService
+
+    return SearchService(db)
+
+
+def get_impact_service(db: Session = Depends(get_db)):
+    from app.services.repo_analysis import ImpactAnalysisService
+
+    return ImpactAnalysisService(db)
+
+
+def get_architecture_service(db: Session = Depends(get_db)):
+    from app.services.repo_analysis import ArchitectureService
+
+    return ArchitectureService(db)
+
+
+def get_documentation_service(db: Session = Depends(get_db)):
+    from app.services.repo_analysis import DocumentationService
+
+    return DocumentationService(db)
+
+
+def get_repository_dashboard(db: Session = Depends(get_db)):
+    from app.services.repo_analysis import RepositoryDashboard
+
+    return RepositoryDashboard(db)
