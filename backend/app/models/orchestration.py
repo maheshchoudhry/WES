@@ -28,6 +28,10 @@ class AIProvider(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     default_model: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    # Live-provider platform (Sprint 11): the currently-selected model and the
+    # failover priority (lower runs first when the default provider fails).
+    active_model: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, default=100)
 
 
 class ProviderConfig(UUIDPrimaryKeyMixin, TimestampMixin, Base):

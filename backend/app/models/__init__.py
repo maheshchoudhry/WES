@@ -51,6 +51,16 @@ from app.models.orchestration import (
     RetryHistory,
     TokenUsage,
 )
+from app.models.provider_platform import (
+    BudgetConfig,
+    ProviderBilling,
+    ProviderErrorLog,
+    ProviderEvent,
+    ProviderLatency,
+    ProviderModel,
+    ProviderSecret,
+    ProviderUsage,
+)
 from app.models.work import (
     ActivityLog,
     Assignment,
@@ -116,4 +126,12 @@ __all__ = [
     "KnowledgeCollection",
     "KnowledgeCollectionItem",
     "ArchitectureDecisionRecord",
+    "ProviderSecret",
+    "ProviderModel",
+    "ProviderUsage",
+    "ProviderBilling",
+    "ProviderLatency",
+    "ProviderErrorLog",
+    "ProviderEvent",
+    "BudgetConfig",
 ]
