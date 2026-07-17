@@ -35,7 +35,22 @@ async def lifespan(app: FastAPI):
         init_database(seed_data=settings.seed_on_start)
     else:
         logger.info("Auto-migration disabled (WES_AUTO_MIGRATE=false).")
+
+    # Durable background job worker (WP3). Opt-in via WES_JOB_WORKER_ENABLED so the
+    # synchronous test suite and existing behavior are unaffected by default.
+    worker = None
+    if settings.job_worker_enabled:
+        from app.core.database import SessionLocal
+        from app.services.job_worker import JobWorker
+
+        worker = JobWorker(SessionLocal)
+        worker.start()
+        logger.info("Durable job worker started.")
+
     yield
+
+    if worker is not None:
+        worker.stop()
 
 
 def create_app() -> FastAPI:
@@ -55,6 +70,11 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # WP5: rate limiting (no-op unless WES_RATE_LIMIT_ENABLED=true).
+    from app.core.rate_limit import RateLimitMiddleware
+
+    app.add_middleware(RateLimitMiddleware)
 
     @app.exception_handler(DomainError)
     async def _domain_error_handler(_: Request, exc: DomainError) -> JSONResponse:

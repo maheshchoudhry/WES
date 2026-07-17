@@ -140,6 +140,18 @@ class GitService:
         _run(["git", "commit", "-q", "-m", message], self.path)
         return self.head_sha()
 
+    def rollback_to(self, sha: str) -> None:
+        """Hard-reset the working tree back to ``sha`` (used when a modification
+        fails its tests). Real ``git reset --hard`` — never touches history beyond
+        this sandbox."""
+        _run(["git", "reset", "-q", "--hard", sha], self.path)
+        _run(["git", "clean", "-fdq"], self.path, check=False)
+
+    def restore_worktree(self) -> None:
+        """Discard uncommitted working-tree changes, restoring the last commit."""
+        _run(["git", "checkout", "-q", "--", "."], self.path, check=False)
+        _run(["git", "clean", "-fdq"], self.path, check=False)
+
     def head_sha(self) -> str:
         return _run(["git", "rev-parse", "HEAD"], self.path).stdout.strip()
 

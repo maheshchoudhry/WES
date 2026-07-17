@@ -39,6 +39,21 @@ class Project(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     tech_stack: Mapped[str | None] = mapped_column(Text, nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
+    # Founder Project Intake (WP6). All nullable — backward compatible.
+    business_objective: Mapped[str | None] = mapped_column(Text, nullable=True)
+    business_problem: Mapped[str | None] = mapped_column(Text, nullable=True)
+    intake_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    deliverables: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+    acceptance_criteria: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+    constraints: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+    timeline: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    knowledge_references: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+    attachments: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+    founder_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Decomposition plan lifecycle: None -> "analyzing" -> "decomposed" -> "approved".
+    plan_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    business_analysis: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+
 
 class Milestone(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "milestones"

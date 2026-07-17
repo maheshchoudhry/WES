@@ -7,8 +7,10 @@ from app.api.v1 import (
     ai_org,
     ai_roles,
     assignments,
+    audit,
     auth,
     companies,
+    company,
     dashboard,
     departments,
     development,
@@ -16,7 +18,10 @@ from app.api.v1 import (
     employees,
     execution,
     health,
+    jobs,
     knowledge,
+    learning,
+    notifications,
     libraries,
     orchestration,
     projects,
@@ -39,6 +44,11 @@ api_router.include_router(ai_employees.router)
 api_router.include_router(ai_roles.router)
 api_router.include_router(ai_org.router)
 api_router.include_router(projects.router)
+api_router.include_router(jobs.router)
+api_router.include_router(notifications.router)
+api_router.include_router(company.router)
+api_router.include_router(audit.router)
+api_router.include_router(learning.router)
 api_router.include_router(sprints.router)
 api_router.include_router(tasks.router)
 api_router.include_router(assignments.router)

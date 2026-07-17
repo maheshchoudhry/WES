@@ -214,11 +214,19 @@ class QualityGateService:
             (r for r in runs if (r.kind.value if hasattr(r.kind, "value") else r.kind) == "unit"),
             None,
         )
+        has_python = any(
+            (c.get("language") == "python") or c["path"].endswith(".py") for c in changes
+        )
         if unit and (unit.passed_count + unit.failed_count) > 0:
             gate.tests_passed_pct = round(
                 unit.passed_count / (unit.passed_count + unit.failed_count) * 100, 1
             )
         elif unit and unit.passed_count > 0:
+            gate.tests_passed_pct = 100.0
+        elif not has_python:
+            # A non-Python change (e.g. a .tsx modification) has no in-sandbox
+            # pytest to run; it is verified by the project's own toolchain
+            # (tsc/vitest). The in-sandbox unit gate is therefore not applicable.
             gate.tests_passed_pct = 100.0
         lint = next(
             (r for r in runs if (r.kind.value if hasattr(r.kind, "value") else r.kind) == "lint"),

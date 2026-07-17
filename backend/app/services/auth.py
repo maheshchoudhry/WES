@@ -10,6 +10,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -56,13 +57,38 @@ class AuthService:
         )
 
     def _issue_tokens(self, employee: Employee, *, remember: bool) -> TokenPair:
+        import uuid as _uuid
+        from datetime import timedelta
+
+        from app.models.security import RefreshToken
+
         role = employee.role.value if hasattr(employee.role, "value") else employee.role
         access = self.tokens.create_access_token(
             subject=employee.id, role=str(role), email=employee.email
         )
-        refresh = self.tokens.create_refresh_token(
-            subject=employee.id, version=employee.refresh_token_version, remember=remember
+        # WP5: each refresh token gets a unique jti registered for rotation +
+        # per-token revocation.
+        jti = _uuid.uuid4().hex
+        days = (
+            self.settings.refresh_token_remember_days
+            if remember
+            else self.settings.refresh_token_days
         )
+        refresh = self.tokens.create_refresh_token(
+            subject=employee.id,
+            version=employee.refresh_token_version,
+            remember=remember,
+            jti=jti,
+        )
+        self.db.add(
+            RefreshToken(
+                jti=jti,
+                employee_id=employee.id,
+                revoked=False,
+                expires_at=datetime.now(timezone.utc) + timedelta(days=days),
+            )
+        )
+        self.db.flush()
         return TokenPair(
             access_token=access,
             refresh_token=refresh,
@@ -106,13 +132,34 @@ class AuthService:
         if claims.version != employee.refresh_token_version:
             raise AuthError("Refresh token has been revoked")
 
+        # WP5 rotation: a refresh token may be used exactly once. Validate its jti
+        # is registered + not revoked, then revoke it before issuing a new one.
+        from app.models.security import RefreshToken
+
+        if claims.jti is not None:
+            row = self.db.scalar(
+                select(RefreshToken).where(RefreshToken.jti == claims.jti)
+            )
+            if row is None or row.revoked:
+                raise AuthError("Refresh token has been revoked")
+            row.revoked = True
+            self.db.flush()
+
         return self._issue_tokens(employee, remember=False)
 
     def logout(self, employee_id: uuid.UUID) -> None:
         """Invalidate all outstanding refresh tokens for the employee."""
+        from app.models.security import RefreshToken
+
         employee = self.employees.get(employee_id)
         if employee is not None:
             employee.refresh_token_version += 1
+            for row in self.db.scalars(
+                select(RefreshToken).where(
+                    RefreshToken.employee_id == employee_id, RefreshToken.revoked.is_(False)
+                )
+            ).all():
+                row.revoked = True
             self.db.flush()
 
     def user_from_access_token(self, token: str) -> Employee:

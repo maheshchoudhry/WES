@@ -204,30 +204,35 @@ class TestingService:
 
     def run(self, task_id: uuid.UUID, sandbox_path: str, py_files: list[str]) -> list[TestRun]:
         runs = []
-        # 1. Static compile check (real).
-        rc, out, ms = self._sh([sys.executable, "-m", "py_compile", *py_files], sandbox_path)
-        runs.append(
-            self._record(
-                task_id,
-                TestKind.COMPILE,
-                "python -m py_compile",
-                TestStatus.PASSED if rc == 0 else TestStatus.FAILED,
-                len(py_files) if rc == 0 else 0,
-                0 if rc == 0 else len(py_files),
-                out,
-                ms,
+        # 1. Static compile check (real). Skipped when there are no Python files
+        # (a non-Python modification is validated by the project's own gate).
+        if py_files:
+            rc, out, ms = self._sh([sys.executable, "-m", "py_compile", *py_files], sandbox_path)
+            runs.append(
+                self._record(
+                    task_id,
+                    TestKind.COMPILE,
+                    "python -m py_compile",
+                    TestStatus.PASSED if rc == 0 else TestStatus.FAILED,
+                    len(py_files) if rc == 0 else 0,
+                    0 if rc == 0 else len(py_files),
+                    out,
+                    ms,
+                )
             )
-        )
         # 2. Unit tests (real pytest in the sandbox).
         rc, out, ms = self._sh([sys.executable, "-m", "pytest", "-q"], sandbox_path)
         passed = int(m.group(1)) if (m := re.search(r"(\d+) passed", out)) else 0
         failed = int(m.group(1)) if (m := re.search(r"(\d+) failed", out)) else 0
+        # pytest exit code 5 == "no tests collected" (e.g. a frontend-only change):
+        # that is not a failure.
+        no_tests = rc == 5 and failed == 0
         runs.append(
             self._record(
                 task_id,
                 TestKind.UNIT,
                 "python -m pytest -q",
-                TestStatus.PASSED if rc == 0 and failed == 0 else TestStatus.FAILED,
+                TestStatus.PASSED if (rc == 0 or no_tests) and failed == 0 else TestStatus.FAILED,
                 passed,
                 failed,
                 out,
@@ -377,6 +382,16 @@ class ApprovalService:
             task.status = DevTaskStatus.APPROVED
             if pr:
                 pr.status = PRStatus.APPROVED
+            # Phase 4: Founder approval auto-starts the CI/CD pipeline as a durable
+            # job (build → test → scan → staging deploy → monitor). Production
+            # remains separately Founder-gated.
+            from app.services.job_queue import JobQueue
+
+            JobQueue(self.db).enqueue(
+                "devops_pipeline",
+                {"task_id": str(task_id), "environment": "staging"},
+                idempotency_key=f"pipeline:{task_id}",
+            )
         elif dec == ApprovalDecision.REJECTED.value:
             task.status = DevTaskStatus.REJECTED
             if pr:

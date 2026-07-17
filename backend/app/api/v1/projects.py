@@ -3,10 +3,12 @@
 import uuid
 
 from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
 
-from app.api.deps import Pagination, get_work_service, pagination, require_permission
+from app.api.deps import Pagination, get_db, get_work_service, pagination, require_permission
 from app.domain.roles import Permission
 from app.schemas.work import ProjectCreate, ProjectUpdate
+from app.services.project_decomposition import DecompositionService
 from app.services.work import WorkService
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -60,3 +62,25 @@ def project_sprints(
 ) -> dict:
     items = service.list_sprints(project_id)
     return {"data": items, "meta": {"total": len(items)}}
+
+
+# -- Autonomous decomposition (WP6) ---------------------------------------
+
+
+@router.post("/{project_id}/decompose", dependencies=[_write])
+def decompose_project(project_id: uuid.UUID, db: Session = Depends(get_db)) -> dict:
+    """AI-CEO business analysis + automatic decomposition into epics -> sprints ->
+    tasks with AI-employee assignment. Produces a plan awaiting Founder approval;
+    does NOT begin implementation."""
+    return {"data": DecompositionService(db).decompose(project_id)}
+
+
+@router.get("/{project_id}/plan", dependencies=[_read])
+def project_plan(project_id: uuid.UUID, db: Session = Depends(get_db)) -> dict:
+    return {"data": DecompositionService(db).plan(project_id)}
+
+
+@router.post("/{project_id}/approve-plan", dependencies=[_write])
+def approve_project_plan(project_id: uuid.UUID, db: Session = Depends(get_db)) -> dict:
+    """Founder approval of the decomposition plan (unlocks execution phases)."""
+    return {"data": DecompositionService(db).approve_plan(project_id)}

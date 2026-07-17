@@ -102,6 +102,8 @@ class WorkService:
             tech_stack=p.tech_stack,
             version=p.version,
             task_count=counts.get(p.id, 0),
+            business_objective=p.business_objective,
+            plan_status=p.plan_status,
             created_at=p.created_at,
             updated_at=p.updated_at,
         )
@@ -126,7 +128,14 @@ class WorkService:
             and self.ai_employees.get(payload.owner_ai_employee_id) is None
         ):
             raise ValidationError("Owner AI employee does not exist")
-        p = Project(**payload.model_dump())
+        import json as _json
+
+        data = payload.model_dump()
+        # Intake list fields are stored as JSON text (backward compatible).
+        for key in ("deliverables", "constraints", "knowledge_references", "attachments"):
+            if isinstance(data.get(key), list):
+                data[key] = _json.dumps(data[key])
+        p = Project(**data)
         self.projects.add(p)
         self._log("project.created", project_id=p.id, detail=p.name)
         return self.get_project(p.id)

@@ -70,6 +70,24 @@ class Settings(BaseSettings):
     # WORLD, or Blueprint repositories. Defaults to a temp location.
     dev_workspace_dir: str = "/tmp/wes-dev-workspaces"
 
+    # Durable background job worker (WP3). Off by default so the synchronous test
+    # suite and existing behavior are unchanged; enable in a real deployment.
+    job_worker_enabled: bool = False
+
+    # --- Security hardening (WP5) ---
+    # Rate limiting is off by default so the test suite is unaffected; enable it in
+    # a real deployment via WES_RATE_LIMIT_ENABLED=true. Limits are per client-IP
+    # per rolling 60s window.
+    rate_limit_enabled: bool = False
+    rate_limit_default: int = 300  # general endpoints
+    rate_limit_auth: int = 10  # /auth/login and friends (anti brute-force)
+
+    # Root of the WES monorepo — used by the autonomous workflow's intent resolver
+    # to discover existing source files (e.g. frontend/src/pages/Dashboard.tsx) when
+    # a task is about modifying, not scaffolding. Defaults to the repo root computed
+    # from this file's location (backend/app/core/config.py -> parents[3]).
+    project_root: str = str(__import__("pathlib").Path(__file__).resolve().parents[3])
+
     # --- Enterprise DevOps Platform (Sprint 15) ---
     # Base directory for build artifacts and local (real) deployments — never a
     # real production host. Deployments extract the built artifact and verify it.

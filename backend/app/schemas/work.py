@@ -17,6 +17,14 @@ from app.domain.work_enums import (
 
 
 # --- Projects -----------------------------------------------------------
+def _dump_json(v):
+    import json
+
+    if v is None:
+        return None
+    return json.dumps(v) if not isinstance(v, str) else v
+
+
 class ProjectCreate(BaseModel):
     code: str = Field(min_length=1, max_length=40)
     name: str = Field(min_length=2, max_length=200)
@@ -25,6 +33,18 @@ class ProjectCreate(BaseModel):
     priority: Priority = Priority.MEDIUM
     repository: str | None = Field(default=None, max_length=300)
     tech_stack: str | None = None
+
+    # Founder Project Intake (WP6) — all optional, backward compatible.
+    business_objective: str | None = None
+    business_problem: str | None = None
+    intake_description: str | None = None
+    deliverables: list[str] | None = None
+    acceptance_criteria: str | None = None
+    constraints: list[str] | None = None
+    timeline: str | None = Field(default=None, max_length=200)
+    knowledge_references: list[str] | None = None
+    attachments: list[str] | None = None
+    founder_notes: str | None = None
 
     @field_validator("code")
     @classmethod
@@ -58,6 +78,8 @@ class ProjectRead(BaseModel):
     tech_stack: str | None
     version: int
     task_count: int = 0
+    business_objective: str | None = None
+    plan_status: str | None = None
     created_at: datetime
     updated_at: datetime
 

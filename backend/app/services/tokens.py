@@ -32,6 +32,7 @@ class AccessClaims:
 class RefreshClaims:
     subject: uuid.UUID
     version: int
+    jti: str | None = None
 
 
 class TokenService:
@@ -50,17 +51,22 @@ class TokenService:
         )
 
     def create_refresh_token(
-        self, *, subject: uuid.UUID, version: int, remember: bool = False
+        self,
+        *,
+        subject: uuid.UUID,
+        version: int,
+        remember: bool = False,
+        jti: str | None = None,
     ) -> str:
         days = (
             self._settings.refresh_token_remember_days
             if remember
             else self._settings.refresh_token_days
         )
-        return self._encode(
-            {"sub": str(subject), "type": "refresh", "ver": version},
-            timedelta(days=days),
-        )
+        payload = {"sub": str(subject), "type": "refresh", "ver": version}
+        if jti is not None:
+            payload["jti"] = jti
+        return self._encode(payload, timedelta(days=days))
 
     def _decode(self, token: str) -> dict:
         try:
@@ -90,6 +96,10 @@ class TokenService:
         if payload.get("type") != "refresh":
             raise TokenError("Not a refresh token")
         try:
-            return RefreshClaims(subject=uuid.UUID(payload["sub"]), version=int(payload["ver"]))
+            return RefreshClaims(
+                subject=uuid.UUID(payload["sub"]),
+                version=int(payload["ver"]),
+                jti=payload.get("jti"),
+            )
         except (KeyError, ValueError) as exc:
             raise TokenError("Malformed refresh token") from exc

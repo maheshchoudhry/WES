@@ -14,6 +14,7 @@ from app.models.department import Department
 from app.models.development import (
     ApprovalHistory,
     CodeReview,
+    DevelopmentHandoff,
     DevelopmentSession,
     DevelopmentTask,
     GeneratedChange,
@@ -23,6 +24,11 @@ from app.models.development import (
     ReviewComment,
     TestRun,
 )
+from app.models.jobs import Job
+from app.models.notifications import Notification
+from app.models.learning import LearningRule
+from app.models.memory import AgentMemory
+from app.models.security import AuditLog, RefreshToken
 from app.models.devops import (
     BuildRun,
     DeploymentArtifact,
@@ -232,4 +238,11 @@ __all__ = [
     "MonitoringEvent",
     "SystemHealth",
     "IncidentReport",
+    "Job",
+    "DevelopmentHandoff",
+    "Notification",
+    "AuditLog",
+    "RefreshToken",
+    "AgentMemory",
+    "LearningRule",
 ]

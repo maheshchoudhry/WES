@@ -413,7 +413,11 @@ class DocumentationReviewService:
                                 node.lineno,
                             )
                         )
-        if not has_markdown:
+        # A committed markdown file is only one way to document a change. A
+        # modification of an existing file (no scaffold) is documented by updating
+        # the knowledge base instead — so only flag missing technical docs when
+        # NEITHER a markdown change NOR a knowledge-base update is present.
+        if not has_markdown and not has_knowledge_doc:
             findings.append(
                 Finding(
                     "documentation",
