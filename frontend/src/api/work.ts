@@ -13,8 +13,55 @@ export interface Project {
   tech_stack: string | null;
   version: number;
   task_count: number;
+  business_objective?: string | null;
+  plan_status?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// Founder Project Intake (WP6, Phase 1).
+export interface ProjectIntakeInput {
+  code: string;
+  name: string;
+  priority?: string;
+  repository?: string;
+  business_objective?: string;
+  business_problem?: string;
+  intake_description?: string;
+  acceptance_criteria?: string;
+  deliverables?: string[];
+  constraints?: string[];
+  timeline?: string;
+  founder_notes?: string;
+}
+
+export interface ProjectPlan {
+  project: {
+    id: string;
+    code: string;
+    name: string;
+    business_objective: string | null;
+    plan_status: string | null;
+    status: string;
+  };
+  business_analysis: {
+    analyst: string;
+    vision: string;
+    scope: { in_scope: string[]; out_of_scope: string[] };
+    risks: string[];
+    architecture_proposal: string;
+  } | null;
+  epics: { id: string; name: string; status: string }[];
+  sprints: { sprint_number: number; goal: string | null; status: string }[];
+  tasks: {
+    task_code: string;
+    title: string;
+    assignee: string | null;
+    reviewer: string | null;
+    estimated_hours: number | null;
+    status: string;
+  }[];
+  totals: { epics: number; sprints: number; tasks: number; estimated_hours: number };
 }
 
 export interface Sprint {
@@ -119,8 +166,14 @@ export interface AIWorkSummary {
 export const workApi = {
   projects: () => http.get<ListResponse<Project>>("/projects"),
   project: (id: string) => http.get<DataResponse<Project>>(`/projects/${id}`),
-  createProject: (input: { code: string; name: string; priority?: string; repository?: string }) =>
+  createProject: (input: ProjectIntakeInput) =>
     http.post<DataResponse<Project>>("/projects", input),
+  decompose: (projectId: string) =>
+    http.post<DataResponse<ProjectPlan>>(`/projects/${projectId}/decompose`, {}),
+  plan: (projectId: string) =>
+    http.get<DataResponse<ProjectPlan>>(`/projects/${projectId}/plan`),
+  approvePlan: (projectId: string) =>
+    http.post<DataResponse<ProjectPlan>>(`/projects/${projectId}/approve-plan`, {}),
   sprints: (projectId: string) => http.get<ListResponse<Sprint>>(`/projects/${projectId}/sprints`),
   milestones: (projectId: string) =>
     http.get<ListResponse<Milestone>>(`/projects/${projectId}/milestones`),

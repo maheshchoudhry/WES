@@ -276,10 +276,15 @@ describe("Dashboard", () => {
     renderDashboard();
 
     await waitFor(() => expect(screen.getByText("Founder Dashboard")).toBeInTheDocument());
-    // Stat values from live data.
-    expect(screen.getByText("6")).toBeInTheDocument();
-    expect(screen.getAllByText("13").length).toBeGreaterThan(0);
-    // Sections and widgets.
+    // Command-center header shows real context (company, version, live clock).
+    expect(screen.getByTestId("cmd-clock")).toBeInTheDocument();
+    expect(screen.getAllByText("WORLD Engineering Studio").length).toBeGreaterThan(0);
+    // Command-center sections (real data, no fabricated widgets).
+    expect(screen.getByText("Executive KPIs")).toBeInTheDocument();
+    expect(screen.getByText("Executive Health")).toBeInTheDocument();
+    expect(screen.getByText("Project Overview")).toBeInTheDocument();
+    expect(screen.getAllByText("AI Company").length).toBeGreaterThan(0);
+    // Existing sections preserved.
     expect(screen.getByText("Department Overview")).toBeInTheDocument();
     expect(screen.getByText("Organization Snapshot")).toBeInTheDocument();
     expect(screen.getByText("Recent Activity")).toBeInTheDocument();

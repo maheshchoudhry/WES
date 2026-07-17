@@ -25,9 +25,14 @@ export function ProjectsPage() {
           <h1>Projects</h1>
           <p>Software projects executed by the AI organization.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setCreating(true)}>
-          New Project
-        </button>
+        <div className="quick-actions">
+          <button className="btn" onClick={() => setCreating(true)}>
+            Quick Add
+          </button>
+          <Link to="/projects/new" className="btn btn-primary">
+            New Project
+          </Link>
+        </div>
       </div>
 
       {projects.length === 0 ? (

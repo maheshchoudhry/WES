@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { aiApi, type AISummary } from "../api/ai";
@@ -24,7 +25,6 @@ import {
   CompanyHealth,
   DepartmentCard,
   OrgSnapshot,
-  QuickActions,
   SectionCard,
   StatCard,
 } from "../components/widgets";
@@ -97,10 +97,45 @@ async function loadDashboard(): Promise<DashboardData> {
   };
 }
 
+// -- helpers -----------------------------------------------------------------
+
+type Tone = "ok" | "warn" | "muted";
+
+function tone(status: string | undefined | null): Tone {
+  const s = (status ?? "").toLowerCase();
+  if (["healthy", "ok", "active", "connected", "passed", "ready", "present"].includes(s))
+    return "ok";
+  if (["empty", "none", "unknown", "n/a", ""].includes(s)) return "muted";
+  return "warn";
+}
+
+function HealthPill({ label, status }: { label: string; status: string }) {
+  const t = tone(status);
+  return (
+    <div className="health-pill">
+      <span className={`health-dot ${t}`} aria-hidden="true" />
+      <span className="health-pill-label">{label}</span>
+      <span className={`health-pill-status ${t}`}>{status || "—"}</span>
+    </div>
+  );
+}
+
+function useClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
+
+// -- page --------------------------------------------------------------------
+
 export function Dashboard() {
   const { data, loading, error } = useAsync(loadDashboard, []);
+  const now = useClock();
 
-  if (loading) return <Loading label="Loading dashboard…" />;
+  if (loading) return <Loading label="Loading command center…" />;
   if (error) return <ErrorNotice message={error} />;
   if (!data) return null;
 
@@ -121,376 +156,378 @@ export function Dashboard() {
     devops,
   } = data;
   const company = stats.company;
-  const aiHealthAccent: "ok" | "warn" | "muted" =
-    ai.organization_health === "healthy"
-      ? "ok"
-      : ai.organization_health === "empty"
-        ? "muted"
-        : "warn";
+  const provider = orch.providers.find((p) => p.is_default) ?? orch.providers[0];
+  const sys = devops.system_health;
+  const companyStatus =
+    health.api === "ok" && health.database === "connected" ? "healthy" : "degraded";
+  const repoStatus = repository?.metrics
+    ? repository.metrics.health_score >= 60
+      ? "healthy"
+      : "degraded"
+    : "empty";
+  const systemStatus = sys?.overall_status ?? (health.api === "ok" ? "healthy" : "degraded");
+
+  if (!company) {
+    return (
+      <div>
+        <div className="page-header">
+          <div>
+            <h1>Founder Dashboard</h1>
+            <p>WES OS — command center.</p>
+          </div>
+        </div>
+        <Empty message="No company exists yet. Create one from the Company page to populate the command center." />
+      </div>
+    );
+  }
 
   return (
-    <div>
+    <div className="cmd">
+      {/* Command header */}
       <div className="page-header">
         <div>
           <h1>Founder Dashboard</h1>
-          <p>{company ? company.name : "WES OS"} — current state of the company.</p>
+          <p>{company.name} — AI Software Company Command Center</p>
         </div>
-        {company && <StatusBadge status={company.status} />}
+        <StatusBadge status={company.status} />
       </div>
 
-      {!company ? (
-        <Empty message="No company exists yet. Create one from the Company page to populate the dashboard." />
-      ) : (
-        <div className="dashboard-grid">
-          {/* Statistics cards */}
-          <div className="grid stats span-all">
-            <StatCard label="Departments" value={stats.totals.departments} />
-            <StatCard label="Employees" value={stats.totals.employees} />
-            <StatCard
-              label="Active Projects"
-              value={stats.totals.active_projects}
-              hint="Projects arrive in a future sprint"
-              accent="muted"
-            />
-            <StatCard
-              label="Active Employees"
-              value={stats.employees_by_status.active ?? 0}
-              accent="ok"
-            />
-          </div>
+      <div className="cmd-header card">
+        <div className="cmd-meta-item">
+          <span className="cmd-meta-label">Company</span>
+          <span className="cmd-meta-value">{company.name}</span>
+        </div>
+        <div className="cmd-meta-item">
+          <span className="cmd-meta-label">Environment</span>
+          <span className="cmd-meta-value" style={{ textTransform: "capitalize" }}>
+            {import.meta.env.MODE}
+          </span>
+        </div>
+        <div className="cmd-meta-item">
+          <span className="cmd-meta-label">Version</span>
+          <span className="cmd-meta-value">v{health.version}</span>
+        </div>
+        <div className="cmd-meta-item">
+          <span className="cmd-meta-label">AI Provider</span>
+          <span className="cmd-meta-value">
+            {provider ? `${provider.name}` : "—"}
+            {provider && (
+              <span className={`health-dot ${tone(provider.health)}`} style={{ marginLeft: 6 }} />
+            )}
+          </span>
+        </div>
+        <div className="cmd-meta-item">
+          <span className="cmd-meta-label">Time</span>
+          <span className="cmd-meta-value" data-testid="cmd-clock">
+            {now.toLocaleTimeString()}
+          </span>
+        </div>
+        <div className="cmd-meta-item">
+          <span className="cmd-meta-label">System Status</span>
+          <span className="cmd-meta-value" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span className={`health-dot ${tone(systemStatus)}`} />
+            <span style={{ textTransform: "capitalize" }}>{systemStatus}</span>
+          </span>
+        </div>
+      </div>
 
-          {/* AI Organization summary */}
-          <div className="span-all">
-            <SectionCard
-              title="AI Organization"
-              action={
-                <Link to="/ai" className="btn btn-sm">
-                  Open AI Company
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="AI Employees" value={ai.total_employees} />
-                <StatCard label="AI Departments" value={ai.department_count} />
-                <StatCard label="AI Roles" value={ai.role_count} />
-                <StatCard
-                  label="Organization Health"
-                  value={
-                    <span style={{ textTransform: "capitalize" }}>{ai.organization_health}</span>
-                  }
-                  accent={aiHealthAccent}
-                />
-              </div>
-            </SectionCard>
-          </div>
+      <div className="cmd-layout">
+        <div className="cmd-main">
+          {/* First row — Executive KPIs */}
+          <SectionCard title="Executive KPIs">
+            <div className="grid stats">
+              <StatCard label="Total Projects" value={work.total_projects} />
+              <StatCard label="Running Tasks" value={exec.in_progress} />
+              <StatCard label="AI Employees Active" value={ai.by_status.active ?? ai.total_employees} accent="ok" />
+              <StatCard
+                label="Pipelines Passed"
+                value={`${devops.passed}/${devops.total_pipelines}`}
+              />
+              <StatCard label="Deployments" value={devops.deployments} />
+              <StatCard label="Avg Review Score" value={quality.avg_review_score} accent="ok" />
+            </div>
+          </SectionCard>
 
-          {/* Work summary */}
-          <div className="span-all">
-            <SectionCard
-              title="Work Management"
-              action={
-                <Link to="/projects" className="btn btn-sm">
-                  Projects
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="Projects" value={work.total_projects} />
-                <StatCard label="Tasks" value={work.total_tasks} />
-                <StatCard
-                  label="Blocked"
-                  value={work.blocked_tasks}
-                  accent={work.blocked_tasks > 0 ? "warn" : "ok"}
-                />
-                <StatCard label="Velocity" value={work.velocity} hint="completed sprints" />
-              </div>
-            </SectionCard>
-          </div>
+          {/* Second row — Executive Health */}
+          <SectionCard title="Executive Health">
+            <div className="cmd-health-row">
+              <HealthPill label="Company" status={companyStatus} />
+              <HealthPill label="AI" status={ai.organization_health} />
+              <HealthPill label="Repository" status={repoStatus} />
+              <HealthPill label="Knowledge" status={knowledge.knowledge_health} />
+              <HealthPill label="Provider" status={provider?.health ?? "unknown"} />
+              <HealthPill label="Deployment" status={systemStatus} />
+            </div>
+          </SectionCard>
 
-          {/* Execution summary */}
-          <div className="span-all">
-            <SectionCard
-              title="AI Execution"
-              action={
-                <Link to="/execution/performance" className="btn btn-sm">
-                  Performance
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="Work Queue" value={exec.ai_work_queue} />
-                <StatCard label="In Progress" value={exec.in_progress} />
-                <StatCard
-                  label="Pending Reviews"
-                  value={exec.pending_reviews}
-                  accent={exec.pending_reviews > 0 ? "warn" : "ok"}
-                />
-                <StatCard label="Completed" value={exec.completed_work} accent="ok" />
+          {/* Third row — Project Overview */}
+          <SectionCard
+            title="Project Overview"
+            action={
+              <Link to="/projects" className="btn btn-sm">
+                Projects
+              </Link>
+            }
+          >
+            <div className="grid stats">
+              <StatCard label="Active Projects" value={work.total_projects} />
+              <StatCard
+                label="Blocked Tasks"
+                value={work.blocked_tasks}
+                accent={work.blocked_tasks > 0 ? "warn" : "ok"}
+              />
+              <StatCard label="Velocity" value={work.velocity} hint="completed sprints" />
+              <StatCard label="Total Tasks" value={work.total_tasks} />
+            </div>
+            <div className="cmd-split">
+              <div>
+                <div className="cmd-subhead">Sprint Progress</div>
+                {work.sprint_progress.length === 0 ? (
+                  <p className="muted">No active sprints.</p>
+                ) : (
+                  <div className="mini-list">
+                    {work.sprint_progress.map((s) => (
+                      <div key={s.sprint_number} className="mini-item">
+                        <span>Sprint {s.sprint_number}</span>
+                        <span className="muted">
+                          {s.done}/{s.total} · v{s.velocity}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </SectionCard>
-          </div>
+              <div>
+                <div className="cmd-subhead">Upcoming Deadlines</div>
+                {work.upcoming_deadlines.length === 0 ? (
+                  <p className="muted">No upcoming deadlines.</p>
+                ) : (
+                  <div className="mini-list">
+                    {work.upcoming_deadlines.map((d, i) => (
+                      <div key={i} className="mini-item">
+                        <span>{d.name}</span>
+                        <span className="muted">{d.due_date}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </SectionCard>
 
-          {/* Orchestration summary */}
-          <div className="span-all">
-            <SectionCard
-              title="AI Orchestration"
-              action={
-                <Link to="/settings/providers" className="btn btn-sm">
-                  Providers
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="Completed Runs" value={orch.completed_executions} accent="ok" />
-                <StatCard
-                  label="Failed Runs"
-                  value={orch.failed_executions}
-                  accent={orch.failed_executions > 0 ? "warn" : "ok"}
-                />
-                <StatCard label="Token Usage" value={orch.token_usage} />
-                <StatCard
-                  label="Est. Cost"
-                  value={`$${orch.estimated_cost.toFixed(4)}`}
-                  hint="mock is free"
-                />
-              </div>
-              <div className="quick-actions" style={{ marginTop: 12 }}>
-                {orch.providers.map((p) => (
-                  <span key={p.name} className="badge prio-medium">
-                    {p.name}: {p.health}
-                    {p.is_default ? " ★" : ""}
-                  </span>
+          {/* Fourth row — AI Company */}
+          <SectionCard
+            title="AI Company"
+            action={
+              <Link to="/ai" className="btn btn-sm">
+                AI Company
+              </Link>
+            }
+          >
+            <div className="grid stats">
+              <StatCard
+                label="CEO Status"
+                value={ai.ceo_present ? "Present" : "Absent"}
+                accent={ai.ceo_present ? "ok" : "warn"}
+              />
+              <StatCard label="Current Executions" value={orch.running_executions} />
+              <StatCard label="Queue Size" value={exec.ai_work_queue} />
+              <StatCard
+                label="Review Queue"
+                value={exec.pending_reviews}
+                accent={exec.pending_reviews > 0 ? "warn" : "ok"}
+              />
+            </div>
+          </SectionCard>
+
+          {/* Fifth row — Development */}
+          <SectionCard
+            title="Development"
+            action={
+              <Link to="/development" className="btn btn-sm">
+                Development
+              </Link>
+            }
+          >
+            <div className="grid stats">
+              <StatCard label="Open PRs" value={development.open_pull_requests} />
+              <StatCard
+                label="Quality Gates Eligible"
+                value={quality.approval_eligible}
+                accent="ok"
+              />
+              <StatCard label="Code Reviews" value={quality.total_gate_runs} />
+              <StatCard
+                label="Pending Approvals"
+                value={development.pending_approvals}
+                accent={development.pending_approvals > 0 ? "warn" : "ok"}
+              />
+            </div>
+          </SectionCard>
+
+          {/* Sixth row — Infrastructure */}
+          <SectionCard
+            title="Infrastructure"
+            action={
+              <Link to="/devops" className="btn btn-sm">
+                DevOps
+              </Link>
+            }
+          >
+            <div className="grid stats">
+              <StatCard label="Pipelines" value={devops.total_pipelines} />
+              <StatCard label="Deployments" value={devops.deployments} />
+              <StatCard
+                label="Open Incidents"
+                value={devops.open_incidents}
+                accent={devops.open_incidents > 0 ? "warn" : "ok"}
+              />
+              <StatCard
+                label="Monitoring"
+                value={
+                  sys ? (
+                    <span style={{ textTransform: "capitalize" }}>{sys.overall_status}</span>
+                  ) : (
+                    "—"
+                  )
+                }
+                accent={tone(sys?.overall_status)}
+                hint={sys ? `cpu ${sys.cpu_pct}% · mem ${sys.memory_pct}% · disk ${sys.disk_pct}%` : ""}
+              />
+            </div>
+          </SectionCard>
+
+          {/* Department overview (existing) */}
+          <SectionCard title="Department Overview">
+            {departments.length === 0 ? (
+              <p className="muted">No departments yet.</p>
+            ) : (
+              <div className="grid dept-grid">
+                {departments.map((d) => (
+                  <DepartmentCard key={d.id} dept={d} />
                 ))}
               </div>
-            </SectionCard>
-          </div>
+            )}
+          </SectionCard>
 
-          {/* DevOps / CI-CD summary */}
-          <div className="span-all">
-            <SectionCard
-              title="DevOps & CI/CD"
-              action={
-                <Link to="/devops" className="btn btn-sm">
-                  Pipelines
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="Pipelines" value={devops.total_pipelines} />
-                <StatCard
-                  label="Awaiting Production"
-                  value={devops.awaiting_production}
-                  accent={devops.awaiting_production > 0 ? "warn" : "ok"}
-                />
-                <StatCard label="Releases" value={devops.releases} accent="ok" />
-                <StatCard
-                  label="System Health"
-                  value={
-                    devops.system_health ? (
-                      <span style={{ textTransform: "capitalize" }}>
-                        {devops.system_health.overall_status}
-                      </span>
-                    ) : (
-                      "—"
-                    )
-                  }
-                  accent={devops.system_health?.overall_status === "healthy" ? "ok" : "warn"}
-                />
-              </div>
-            </SectionCard>
-          </div>
-
-          {/* Quality gate summary */}
-          <div className="span-all">
-            <SectionCard
-              title="Quality Gates"
-              action={
-                <Link to="/quality" className="btn btn-sm">
-                  Quality
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="Approval-Eligible" value={quality.approval_eligible} accent="ok" />
-                <StatCard
-                  label="Blocked"
-                  value={quality.blocked}
-                  accent={quality.blocked > 0 ? "warn" : "ok"}
-                />
-                <StatCard
-                  label="Open Critical"
-                  value={quality.open_critical}
-                  accent={quality.open_critical > 0 ? "warn" : "ok"}
-                />
-                <StatCard label="Release Ready" value={quality.release_ready} accent="ok" />
-              </div>
-            </SectionCard>
-          </div>
-
-          {/* Autonomous development summary */}
-          <div className="span-all">
-            <SectionCard
-              title="Autonomous Development"
-              action={
-                <Link to="/development" className="btn btn-sm">
-                  Development
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="Running" value={development.running} />
-                <StatCard label="Completed" value={development.completed} accent="ok" />
-                <StatCard
-                  label="Pending Approvals"
-                  value={development.pending_approvals}
-                  accent={development.pending_approvals > 0 ? "warn" : "ok"}
-                />
-                <StatCard label="Open PRs" value={development.open_pull_requests} />
-              </div>
-            </SectionCard>
-          </div>
-
-          {/* Repository intelligence summary */}
-          {repository && repository.metrics && (
-            <div className="span-all">
-              <SectionCard
-                title="Repository Intelligence"
-                action={
-                  <Link to="/repository" className="btn btn-sm">
-                    Repository
-                  </Link>
-                }
-              >
-                <div className="grid stats">
-                  <StatCard label="Files" value={repository.metrics.file_count} />
-                  <StatCard label="Symbols" value={repository.metrics.symbol_count} />
-                  <StatCard label="Routes" value={repository.metrics.route_count} />
-                  <StatCard
-                    label="Health"
-                    value={repository.metrics.health_score.toFixed(0)}
-                    accent={repository.metrics.health_score >= 60 ? "ok" : "warn"}
-                    hint={repository.primary_language ?? ""}
-                  />
-                </div>
-              </SectionCard>
-            </div>
-          )}
-
-          {/* Knowledge summary */}
-          <div className="span-all">
-            <SectionCard
-              title="Organizational Knowledge"
-              action={
-                <Link to="/knowledge" className="btn btn-sm">
-                  Knowledge Base
-                </Link>
-              }
-            >
-              <div className="grid stats">
-                <StatCard label="Documents" value={knowledge.documents} />
-                <StatCard label="Categories" value={knowledge.categories} />
-                <StatCard
-                  label="Pending Reviews"
-                  value={knowledge.pending_reviews}
-                  accent={knowledge.pending_reviews > 0 ? "warn" : "ok"}
-                />
-                <StatCard
-                  label="Knowledge Health"
-                  value={
-                    <span style={{ textTransform: "capitalize" }}>
-                      {knowledge.knowledge_health}
-                    </span>
-                  }
-                  accent={
-                    knowledge.knowledge_health === "healthy"
-                      ? "ok"
-                      : knowledge.knowledge_health === "empty"
-                        ? "muted"
-                        : "warn"
-                  }
-                  hint={`${knowledge.statistics.retrievals} AI retrievals`}
-                />
-              </div>
-            </SectionCard>
-          </div>
-
-          {/* Left column */}
-          <div className="dashboard-col">
-            <SectionCard title="Department Overview">
-              {departments.length === 0 ? (
-                <p className="muted">No departments yet.</p>
-              ) : (
-                <div className="grid dept-grid">
-                  {departments.map((d) => (
-                    <DepartmentCard key={d.id} dept={d} />
-                  ))}
-                </div>
-              )}
-            </SectionCard>
-
-            <SectionCard title="Employee Workspace">
-              {employees.length === 0 ? (
-                <p className="muted">No employees yet.</p>
-              ) : (
-                <div className="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Position</th>
-                        <th>Department</th>
-                        <th>Manager</th>
-                        <th>Status</th>
+          {/* Employee workspace (existing) */}
+          <SectionCard title="Employee Workspace">
+            {employees.length === 0 ? (
+              <p className="muted">No employees yet.</p>
+            ) : (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Name</th>
+                      <th>Position</th>
+                      <th>Department</th>
+                      <th>Manager</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employees.map((e) => (
+                      <tr key={e.id}>
+                        <td>{e.employee_code}</td>
+                        <td>{e.full_name}</td>
+                        <td className="muted">{e.position}</td>
+                        <td>{e.department_name ?? "—"}</td>
+                        <td>{e.manager_name ?? "—"}</td>
+                        <td>
+                          <StatusBadge status={e.status} />
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {employees.map((e) => (
-                        <tr key={e.id}>
-                          <td>{e.employee_code}</td>
-                          <td>{e.full_name}</td>
-                          <td className="muted">{e.position}</td>
-                          <td>{e.department_name ?? "—"}</td>
-                          <td>{e.manager_name ?? "—"}</td>
-                          <td>
-                            <StatusBadge status={e.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </SectionCard>
-          </div>
-
-          {/* Right column */}
-          <div className="dashboard-col">
-            <SectionCard title="Quick Actions">
-              <QuickActions
-                actions={[
-                  { label: "Company", to: "/company" },
-                  { label: "Departments", to: "/departments" },
-                  { label: "Employees", to: "/employees" },
-                  { label: "Projects", to: "/projects", disabled: true },
-                ]}
-              />
-            </SectionCard>
-
-            <SectionCard title="Company Health">
-              <CompanyHealth health={health} />
-            </SectionCard>
-
-            <SectionCard title="Organization Snapshot">
-              <OrgSnapshot employees={employees} />
-            </SectionCard>
-
-            <SectionCard title="Recent Activity">
-              <ActivityFeed items={activity} />
-            </SectionCard>
-          </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </SectionCard>
         </div>
-      )}
+
+        {/* Right side panel */}
+        <aside className="cmd-aside">
+          <SectionCard title="Company Health">
+            <CompanyHealth health={health} />
+          </SectionCard>
+
+          <SectionCard title="Recent Activity">
+            <ActivityFeed items={activity} />
+          </SectionCard>
+
+          <SectionCard title="Latest AI Tasks">
+            {development.recent_tasks.length === 0 ? (
+              <p className="muted">No development tasks yet.</p>
+            ) : (
+              <div className="mini-list">
+                {development.recent_tasks.slice(0, 6).map((t) => (
+                  <div key={t.id} className="mini-item">
+                    <span className="mini-item-title">
+                      {t.code} · {t.title}
+                    </span>
+                    <span className="badge prio-low">{t.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Latest Pipelines">
+            {devops.recent_pipelines.length === 0 ? (
+              <p className="muted">No pipelines yet.</p>
+            ) : (
+              <div className="mini-list">
+                {devops.recent_pipelines.slice(0, 6).map((p) => (
+                  <div key={p.id} className="mini-item">
+                    <span className="mini-item-title">
+                      {p.code} · {p.environment_target}
+                    </span>
+                    <span className="badge prio-low">{p.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Latest Quality Gates">
+            {quality.recent.length === 0 ? (
+              <p className="muted">No gate runs yet.</p>
+            ) : (
+              <div className="mini-list">
+                {quality.recent.slice(0, 6).map((r, i) => (
+                  <div key={i} className="mini-item">
+                    <span className="mini-item-title">Score {r.overall_score}</span>
+                    <span className={`badge ${r.approval_eligible ? "prio-low" : "prio-medium"}`}>
+                      {r.approval_eligible ? "eligible" : "blocked"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Latest Knowledge">
+            {knowledge.recent_knowledge.length === 0 ? (
+              <p className="muted">No documents yet.</p>
+            ) : (
+              <div className="mini-list">
+                {knowledge.recent_knowledge.slice(0, 6).map((d) => (
+                  <div key={d.id} className="mini-item">
+                    <span className="mini-item-title">{d.title}</span>
+                    <span className="badge prio-low">{d.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Organization Snapshot">
+            <OrgSnapshot employees={employees} />
+          </SectionCard>
+        </aside>
+      </div>
     </div>
   );
 }

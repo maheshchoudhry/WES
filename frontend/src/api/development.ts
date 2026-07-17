@@ -126,7 +126,39 @@ export const developmentApi = {
     http.post<DataResponse<DevTask>>(`/development/tasks/${id}/approve`, { decision, notes }),
   pendingApprovals: () => http.get<ListResponse<DevTask>>("/development/pending-approvals"),
   founderDashboard: () => http.get<DataResponse<DevFounderDash>>("/development/founder-dashboard"),
+  team: () => http.get<ListResponse<AIAgent>>("/development/team"),
+  orchestration: (id: string) =>
+    http.get<DataResponse<Orchestration>>(`/development/tasks/${id}/orchestration`),
 };
+
+export interface AIAgent {
+  employee: string;
+  employee_code: string;
+  role: string;
+  authority: string;
+  provider: string;
+  responsibilities: string[];
+  decision_rules: string[];
+}
+
+export interface Orchestration {
+  stages: {
+    stage: string;
+    role: string | null;
+    status: string;
+    acting_employee: string | null;
+    provider: string | null;
+  }[];
+  handoffs: {
+    sequence: number;
+    from_employee: string | null;
+    to_employee: string | null;
+    from_role: string | null;
+    to_role: string | null;
+    stage: string | null;
+    summary: string | null;
+  }[];
+}
 
 export const stageLabel = (s: string): string =>
   s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

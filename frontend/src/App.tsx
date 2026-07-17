@@ -9,12 +9,18 @@ import { AIDepartmentView } from "./pages/ai/AIDepartmentView";
 import { AIDirectory } from "./pages/ai/AIDirectory";
 import { AIOrgChart } from "./pages/ai/AIOrgChart";
 import { AIProfile } from "./pages/ai/AIProfile";
+import { EmployeeWorkspace } from "./pages/ai/EmployeeWorkspace";
+import { ExecutiveTimeline } from "./pages/company/ExecutiveTimeline";
+import { LiveCompany } from "./pages/company/LiveCompany";
 import { CompanyOverview } from "./pages/CompanyOverview";
 import { Dashboard } from "./pages/Dashboard";
 import { DepartmentsPage } from "./pages/DepartmentsPage";
 import { EmployeesPage } from "./pages/EmployeesPage";
 import { Forbidden } from "./pages/Forbidden";
 import { Login } from "./pages/Login";
+import { AuditLogs } from "./pages/AuditLogs";
+import { Notifications } from "./pages/Notifications";
+import { SelfLearning } from "./pages/SelfLearning";
 import { Unauthorized } from "./pages/Unauthorized";
 import { Conversation } from "./pages/orchestration/Conversation";
 import { Executions } from "./pages/orchestration/Executions";
@@ -37,6 +43,7 @@ import { PerformanceDashboard as QualityPerformanceDashboard } from "./pages/qua
 import { ReviewDashboard as QualityReviewDashboard } from "./pages/quality/ReviewDashboard";
 import { ReleaseReadinessDashboard } from "./pages/quality/ReleaseReadinessDashboard";
 import { RiskDashboard } from "./pages/quality/RiskDashboard";
+import { AITeam } from "./pages/development/AITeam";
 import { DevelopmentDashboard } from "./pages/development/DevelopmentDashboard";
 import { ImplementationViewer } from "./pages/development/ImplementationViewer";
 import { RepositoryChanges } from "./pages/development/RepositoryChanges";
@@ -72,6 +79,8 @@ import { ReviewQueue } from "./pages/execution/ReviewQueue";
 import { SOPLibrary } from "./pages/execution/SOPLibrary";
 import { KanbanBoard } from "./pages/work/KanbanBoard";
 import { ProjectDetail } from "./pages/work/ProjectDetail";
+import { ProjectIntake } from "./pages/work/ProjectIntake";
+import { ProjectPlan } from "./pages/work/ProjectPlan";
 import { ProjectsPage } from "./pages/work/ProjectsPage";
 import { TaskDetail } from "./pages/work/TaskDetail";
 
@@ -98,6 +107,9 @@ export default function App() {
 
       <Route element={<ProtectedLayout />}>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/audit" element={<AuditLogs />} />
+        <Route path="/learning" element={<SelfLearning />} />
         <Route path="/company" element={<CompanyOverview />} />
         <Route path="/departments" element={<DepartmentsPage />} />
         <Route path="/employees" element={<EmployeesPage />} />
@@ -106,8 +118,13 @@ export default function App() {
         <Route path="/ai/org" element={<AIOrgChart />} />
         <Route path="/ai/departments" element={<AIDepartmentView />} />
         <Route path="/ai/employees/:id" element={<AIProfile />} />
+        <Route path="/ai/employees/:id/workspace" element={<EmployeeWorkspace />} />
+        <Route path="/company/live" element={<LiveCompany />} />
+        <Route path="/company/timeline" element={<ExecutiveTimeline />} />
         <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/new" element={<ProjectIntake />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/projects/:id/plan" element={<ProjectPlan />} />
         <Route path="/board" element={<KanbanBoard />} />
         <Route path="/tasks/:id" element={<TaskDetail />} />
         <Route path="/execution/workspace" element={<AIWorkspace />} />
@@ -146,6 +163,7 @@ export default function App() {
         <Route path="/repository/search" element={<CodeSearch />} />
         <Route path="/repository/modules" element={<ModuleExplorer />} />
         <Route path="/development" element={<DevelopmentDashboard />} />
+        <Route path="/development/team" element={<AITeam />} />
         <Route path="/development/tasks/:id" element={<ImplementationViewer />} />
         <Route path="/development/changes/:id" element={<RepositoryChanges />} />
         <Route path="/development/review/:id" element={<DevReviewCenter />} />
