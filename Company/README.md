@@ -11,5 +11,9 @@ Operational company documentation for **WORLD Engineering Studio (WES)**. This d
 - [Employee Directory](./Employee-Directory.md)
 - [Company Policies](./Company-Policies.md)
 - [Company Readiness Report](./Company-Readiness-Report.md)
+- [Workforce Register](./Workforce-Register.md)
+- [Employee Operating System (EOS)](./Employee-Operating-System/README.md)
+- [Communication System](./Communication-System/README.md)
+- [Company Memory System (CMS)](./Company-Memory-System/README.md)
 
-> **Status:** Activated (v1.0). The core AI workforce (13 employees across 6 departments) is active. See the [Readiness Report](./Company-Readiness-Report.md).
+> **Status:** Operational (v1.0). The core AI workforce (13 employees across 6 departments) is active, governed by the [Employee Operating System](./Employee-Operating-System/README.md), coordinated through the [Communication System](./Communication-System/README.md), and supported by the [Company Memory System](./Company-Memory-System/README.md).

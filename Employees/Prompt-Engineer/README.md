@@ -9,7 +9,7 @@
 | **Reports To** | AI Engineer |
 | **Authority Level** | Operational |
 | **Current Status** | Active |
-| **Version** | v1.0 |
+| **Version** | v1.1 |
 
 ## Purpose
 
@@ -37,8 +37,27 @@ Prompts, prompt versions, test results.
 
 AI Engineer, QA Engineer.
 
+## Operational Status (EOS)
+
+| Field | Detail |
+|-------|--------|
+| **Employee Status** | Active |
+| **Current Assignment** | Unassigned |
+| **Department Assignment** | AI Systems |
+| **Availability Status** | Available |
+| **Work Capacity** | Standard (1–2 concurrent tasks) |
+| **Reporting Frequency** | Per task |
+| **Approval Authority** | Prompt design within feature scope |
+| **Operational State** | Available |
+| **Current Version** | v1.1 |
+
+**Skill Categories:** Prompt Design, Testing, Iteration
+**Primary Expertise:** Prompt engineering
+**Secondary Expertise:** Evaluation, refinement
+**Collaboration Partners:** AI Engineer, QA Engineer
+
 ---
 
 _Placeholder for future expansion: SOPs and operating prompts._
 
-**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md)
+**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md) · **Framework:** [Employee Operating System](../../Company/Employee-Operating-System/README.md)

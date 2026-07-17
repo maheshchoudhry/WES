@@ -9,7 +9,7 @@
 | **Reports To** | Software Architect |
 | **Authority Level** | Operational |
 | **Current Status** | Active |
-| **Version** | v1.0 |
+| **Version** | v1.1 |
 
 ## Purpose
 
@@ -37,8 +37,27 @@ CI/CD pipelines, environments, automation, monitoring.
 
 Engineers, Security Engineer, Software Architect.
 
+## Operational Status (EOS)
+
+| Field | Detail |
+|-------|--------|
+| **Employee Status** | Active |
+| **Current Assignment** | Unassigned |
+| **Department Assignment** | Project Management & Operations |
+| **Availability Status** | Available |
+| **Work Capacity** | Shared (cross-project) |
+| **Reporting Frequency** | Per release |
+| **Approval Authority** | Automation and environments (production requires human approval) |
+| **Operational State** | Available |
+| **Current Version** | v1.1 |
+
+**Skill Categories:** DevOps, CI/CD, Automation
+**Primary Expertise:** Build and deployment automation
+**Secondary Expertise:** Environments, monitoring
+**Collaboration Partners:** Engineers, Security Engineer, Software Architect
+
 ---
 
 _Placeholder for future expansion: SOPs and operating prompts._
 
-**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md)
+**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md) · **Framework:** [Employee Operating System](../../Company/Employee-Operating-System/README.md)

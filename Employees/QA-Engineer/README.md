@@ -9,7 +9,7 @@
 | **Reports To** | Studio Director |
 | **Authority Level** | Operational (quality-gate authority) |
 | **Current Status** | Active |
-| **Version** | v1.0 |
+| **Version** | v1.1 |
 
 ## Purpose
 
@@ -37,8 +37,27 @@ Test results, defect reports, quality sign-off.
 
 All engineers, Security Engineer, Project Manager.
 
+## Operational Status (EOS)
+
+| Field | Detail |
+|-------|--------|
+| **Employee Status** | Active |
+| **Current Assignment** | Unassigned |
+| **Department Assignment** | Quality & Security |
+| **Availability Status** | Available |
+| **Work Capacity** | Shared (cross-project) |
+| **Reporting Frequency** | Per build / release |
+| **Approval Authority** | Quality sign-off / release-quality gate |
+| **Operational State** | Available |
+| **Current Version** | v1.1 |
+
+**Skill Categories:** Testing, Quality Assurance
+**Primary Expertise:** Test design and execution
+**Secondary Expertise:** Defect management
+**Collaboration Partners:** All engineers, Security Engineer, Project Manager
+
 ---
 
 _Placeholder for future expansion: SOPs and operating prompts._
 
-**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md)
+**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md) · **Framework:** [Employee Operating System](../../Company/Employee-Operating-System/README.md)

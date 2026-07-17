@@ -9,7 +9,7 @@
 | **Reports To** | Studio Director |
 | **Authority Level** | Lead (coordination authority) |
 | **Current Status** | Active |
-| **Version** | v1.0 |
+| **Version** | v1.1 |
 
 ## Purpose
 
@@ -37,8 +37,27 @@ Plans, schedules, status reports, risk logs.
 
 All roles; Studio Director; Technical Writer.
 
+## Operational Status (EOS)
+
+| Field | Detail |
+|-------|--------|
+| **Employee Status** | Active |
+| **Current Assignment** | Unassigned |
+| **Department Assignment** | Project Management & Operations |
+| **Availability Status** | Available |
+| **Work Capacity** | Oversight (1–2 projects) |
+| **Reporting Frequency** | Weekly / per milestone |
+| **Approval Authority** | Plan, schedule, and coordination |
+| **Operational State** | Available |
+| **Current Version** | v1.1 |
+
+**Skill Categories:** Planning, Coordination, Risk Management
+**Primary Expertise:** Project management
+**Secondary Expertise:** Status reporting, risk management
+**Collaboration Partners:** All roles; Studio Director; Technical Writer
+
 ---
 
 _Placeholder for future expansion: SOPs and operating prompts._
 
-**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md)
+**Role definition:** [Volume 03 — Roles](../../Blueprint/Volume-03-Roles/README.md) · **Framework:** [Employee Operating System](../../Company/Employee-Operating-System/README.md)
