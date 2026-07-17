@@ -1,0 +1,7 @@
+[Unit]
+Description=WES OS health check (services + containers + endpoints)
+After=wes-infra.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/wes/healthcheck.sh

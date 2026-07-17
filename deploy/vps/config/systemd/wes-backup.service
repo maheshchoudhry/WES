@@ -1,0 +1,11 @@
+[Unit]
+Description=WES OS backup (PostgreSQL dump + Redis snapshot)
+Requires=wes-infra.service
+After=wes-infra.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/opt/wes/.env
+ExecStart=/opt/wes/backup.sh
+Nice=10
+IOSchedulingClass=idle

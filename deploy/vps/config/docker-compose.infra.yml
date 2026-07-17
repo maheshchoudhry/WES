@@ -1,0 +1,59 @@
+# WES OS infrastructure stack (PostgreSQL + Redis).
+# Prepared during bootstrap; the WES application is NOT part of this file and is
+# deployed separately. Managed by the wes-infra systemd unit for auto-restart.
+name: wes-infra
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: wes-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wes_os}
+      POSTGRES_USER: ${POSTGRES_USER:-wes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+    ports:
+      # Bind to loopback only — reachable by the WES backend on the host, never
+      # exposed to the public interface.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - wes_pgdata:/var/lib/postgresql/data
+    networks:
+      - wes-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wes} -d ${POSTGRES_DB:-wes_os}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  redis:
+    image: redis:7
+    container_name: wes-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - wes_redisdata:/data
+    networks:
+      - wes-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  wes_pgdata:
+  wes_redisdata:
+
+networks:
+  wes-net:
+    external: true
+    name: wes-net

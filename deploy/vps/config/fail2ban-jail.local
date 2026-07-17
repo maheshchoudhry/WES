@@ -1,0 +1,23 @@
+# WES OS Fail2ban configuration.
+[DEFAULT]
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+backend  = systemd
+# Never ban the loopback / private ranges.
+ignoreip = 127.0.0.1/8 ::1
+
+[sshd]
+enabled = true
+port    = __SSH_PORT__
+maxretry = 4
+bantime  = 2h
+
+[nginx-http-auth]
+enabled = true
+
+[nginx-limit-req]
+enabled = true
+
+[nginx-botsearch]
+enabled = true

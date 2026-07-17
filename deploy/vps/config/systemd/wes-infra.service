@@ -1,0 +1,17 @@
+[Unit]
+Description=WES OS infrastructure stack (PostgreSQL + Redis)
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/wes/config
+EnvironmentFile=/opt/wes/.env
+ExecStart=/usr/bin/docker compose --env-file /opt/wes/.env -f docker-compose.infra.yml -p wes-infra up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.infra.yml -p wes-infra down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
